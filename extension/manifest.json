@@ -1,0 +1,36 @@
+{
+
+"manifest_version": 2,
+"name": "vd",
+"version": "0.1.0",
+"description": "Verify downloaded files against provided digests.",
+
+
+"icons": {
+	"48": "icon/vd-normal.svg",
+	"96": "icon/vd-normal.svg"
+},
+
+"permissions": [
+	"downloads",
+	"nativeMessaging",
+	"<all_urls>"
+],
+
+"applications": {
+	"gecko": {
+		"id": "vd@vd.io",
+		"strict_min_version": "60.0"
+	}
+},
+
+"browser_action": {
+	"default_icon": "icon/vd-normal.svg",
+	"default_title": "vd"
+},
+
+"background": {
+	"scripts": ["./background.js"]
+}
+
+}

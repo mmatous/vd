@@ -1,0 +1,10 @@
+node_modules
+coverage
+web-ext-artifacts
+.test
+.vscode
+.idea
+yarn-error.log
+.web-extension-id
+README.html
+

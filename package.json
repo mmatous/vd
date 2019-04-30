@@ -1,0 +1,25 @@
+{
+	"name": "vd",
+	"version": "0.1.0",
+	"license": "GPL-3.0-or-later",
+	"scripts": {
+		"pretest": "./scripts/pretest.sh",
+		"test": "jest",
+		"lint": "yarn run web-ext lint --source-dir ./extension/ && eslint ./extension/background.js",
+		"wrun": "web-ext run --source-dir ./extension",
+		"build": "web-ext build --source-dir ./extension --overwrite-dest",
+		"sign": "web-ext sign --source-dir ./extension"
+	},
+	"devDependencies": {
+		"@babel/core": "^7.4.4",
+		"@babel/preset-env": "^7.4.4",
+		"babel-jest": "^24.7.1",
+		"babel-plugin-transform-class-properties": "^6.24.1",
+		"babel-preset-env": "^1.7.0",
+		"eslint": "^5.16.0",
+		"jest": "^24.7.1",
+		"jest-fetch-mock": "^2.1.2",
+		"sinon-chrome": "^3.0.1",
+		"web-ext": "^3.0.0"
+	}
+}
