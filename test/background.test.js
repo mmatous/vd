@@ -92,7 +92,10 @@ test('matchFileSumsLinks()', () => {
 
 test('selectDigest() returns first available option if possible', () => {
 	expect(bg.selectDigest(
-		['https://host.io/path/md5sums', 'https://host.io/sha512sums.txt', 'https://host.io/notadigest.html']))
+		[	'https://host.io/path/md5sums',
+			'https://host.io/sha512sums.txt',
+			'https://host.io/notadigest.html'
+		]))
 		.toEqual('https://host.io/path/md5sums');
 });
 
@@ -170,14 +173,18 @@ test('downloadDigest() rejects on rejected downloads', async () => {
 
 test('updateIcon() calls API with correct arguments', () => {
 	bg.updateIcon(bg.Preset.integrity);
-	expect(browser.browserAction.setIcon.withArgs({ path: '../icon/vd-integrity.svg' }).calledOnce).toEqual(true);
-	expect(browser.browserAction.setTitle.withArgs({ title: 'vd — integrity verified' }).calledOnce).toEqual(true);
+	expect(browser.browserAction.setIcon.withArgs({ path: '../icon/vd-integrity.svg' }).calledOnce)
+		.toEqual(true);
+	expect(browser.browserAction.setTitle.withArgs({ title: 'vd — integrity verified' }).calledOnce)
+		.toEqual(true);
 });
 
 test('resetBrowserAction() resets text & icon to normal', () => {
 	bg.resetBrowserAction();
-	expect(browser.browserAction.setIcon.withArgs({ path: '../icon/vd-normal.svg' }).calledOnce).toEqual(true);
-	expect(browser.browserAction.setTitle.withArgs({ title: 'vd' }).calledOnce).toEqual(true);
+	expect(browser.browserAction.setIcon.withArgs({ path: '../icon/vd-normal.svg' }).calledOnce)
+		.toEqual(true);
+	expect(browser.browserAction.setTitle.withArgs({ title: 'vd' }).calledOnce)
+		.toEqual(true);
 });
 
 //this is a hack, see shouldBeIgnored() for more info
@@ -193,10 +200,12 @@ test('shouldBeIgnored() returns false for any download without #vd-ignore fragme
 	)).toBe(false);
 });
 
-test('cleanup() removes file, clears downloads for digest, deletes entry from container for both', async () => {
+test('cleanup() removes file (digest), deletes ext. entry (digest, file)', async () => {
 	bg.records.set(0, { digestId: 1 });
 	browser.downloads.removeFile.returns(Promise.resolve());
-	browser.downloads.search.returns(Promise.resolve([{ filename: '/path/to/download/verifiable.file.sha1' }]));
+	browser.downloads.search.returns(
+		Promise.resolve([{ filename: '/path/to/download/verifiable.file.sha1' }])
+	);
 	browser.downloads.erase.returns(Promise.resolve([0]));
 
 	await bg.cleanup(0);
@@ -220,7 +229,7 @@ test('cleanup() does nothing if called with invalid ID', async () => {
 	expect(browser.downloads.erase.callCount).toBe(0);
 });
 
-test('markDownloaded() marks file as downloaded and returns file ID if provided with valid file ID', () => {
+test('markDownloaded() marks file as downloaded and returns file ID', () => {
 	bg.records.set(23, { text: 'retrieveFromRecords' });
 
 	expect(bg.markDownloaded(23)).toEqual(23);
@@ -241,9 +250,15 @@ test('markDownloaded() returns undefined if provided with invalid ID', () => {
 });
 
 test('readyForVerification() returns true iff both file and digest finished downloading', () => {
-	bg.records.set(0, { fileState: bg.DownloadState.downloaded, digestState: bg.DownloadState.downloaded });
-	bg.records.set(1, { fileState: bg.DownloadState.downloading, digestState: bg.DownloadState.downloaded });
-	bg.records.set(2, { fileState: bg.DownloadState.downloaded, digestState: bg.DownloadState.unknown });
+	bg.records.set(0,
+		{ fileState: bg.DownloadState.downloaded, digestState: bg.DownloadState.downloaded }
+	);
+	bg.records.set(1,
+		{ fileState: bg.DownloadState.downloading, digestState: bg.DownloadState.downloaded }
+	);
+	bg.records.set(2,
+		{ fileState: bg.DownloadState.downloaded, digestState: bg.DownloadState.unknown }
+	);
 
 	expect(bg.readyForVerification(0)).toBe(true);
 	expect(bg.readyForVerification(1)).toBe(false);
@@ -304,7 +319,9 @@ test('handleDownloadCreated() creates appropriate entry in "records" if successf
 	`;
 	fetch.mockResponseOnce(response);
 	browser.downloads.download.returns(43);
-	browser.downloads.search.returns(Promise.resolve([{ filename: '/path/to/download/verifiable.file.sha1' }]));
+	browser.downloads.search.returns(
+		Promise.resolve([{ filename: '/path/to/download/verifiable.file.sha1' }])
+	);
 
 	await bg.handleDownloadCreated(
 		{ id: 0, url: 'https://host.io/path/verifiable.file', filename: '/path/verifiable.file' }
@@ -322,7 +339,9 @@ test('handleDownloadCreated() creates appropriate entry in "records" if successf
 test('handleDownloadCreated() does not create entry in "records" if no page to parse', async () => {
 	fetch.mockRejectOnce('dns fail');
 	browser.downloads.download.returns(43);
-	browser.downloads.search.returns(Promise.resolve([{ filename: '/path/to/download/verifiable.file.sha1' }]));
+	browser.downloads.search.returns(
+		Promise.resolve([{ filename: '/path/to/download/verifiable.file.sha1' }])
+	);
 
 	await bg.handleDownloadCreated(
 		{ id: 0, url: 'https://host.io/path/verifiable.file', filename: '/path/verifiable.file' }
@@ -353,7 +372,9 @@ test('handleDownloadCreated() does not create entry in "records" if digest downl
 	`;
 	fetch.mockResponseOnce(response);
 	browser.downloads.download.rejects('disconnected');
-	browser.downloads.search.returns(Promise.resolve([{ filename: '/path/to/download/verifiable.file.sha1' }]));
+	browser.downloads.search.returns(
+		Promise.resolve([{ filename: '/path/to/download/verifiable.file.sha1' }])
+	);
 
 	await bg.handleDownloadCreated(
 		{ id: 0, url: 'https://host.io/path/verifiable.file', filename: '/path/verifiable.file' }
