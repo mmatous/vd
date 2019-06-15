@@ -16,31 +16,20 @@
 /******************************************************************************/
 /******************************************************************************/
 
-/* eslint-disable no-console */
-/* global browser */
 'use strict';
 
 const DownloadState = Object.freeze({'unknown': 1, 'downloading': 2, 'downloaded': 3, 'noexist': 4});
 const Preset = Object.freeze({
-	'normal': {icon: '../icon/vd-normal.svg', message: ''},
-	'error': {icon: '../icon/vd-error.svg', message: ' — error encountered'},
-	'fail': {icon: '../icon/vd-fail.svg',  message: ' — verification failed'},
-	'integrity': {icon: '../icon/vd-integrity.svg', message: ' — integrity verified'},
-	'authenticity': {icon: '../icon/vd-authenticity.svg', message: ' — authenticity verified'}
+	normal: {iconUrl: browser.runtime.getURL('icon/vd-normal.svg'), title: ''},
+	error: {iconUrl: browser.runtime.getURL('icon/vd-error.svg'), title: 'Error encountered'},
+	fail: {iconUrl: browser.runtime.getURL('icon/vd-fail.svg'),  title: 'Verification failed'},
+	integrity: {iconUrl: browser.runtime.getURL('icon/vd-integrity.svg'), title: 'Integrity verified'},
+	authenticity: {iconUrl: browser.runtime.getURL('icon/vd-authenticity.svg'), title: 'Authenticity verified'}
 });
 
 const records = new Map();
 const digests = new Map();
 const parser = new DOMParser();
-
-function updateIcon(preset) {
-	browser.browserAction.setIcon({path: preset.icon});
-	browser.browserAction.setTitle({title: 'vd' + preset.message});
-}
-
-function resetBrowserAction() {
-	updateIcon(Preset.normal);
-}
 
 function shouldBeIgnored(downloadItem) {
 	return downloadItem.url.endsWith('#vd-ignore');
@@ -49,6 +38,16 @@ function shouldBeIgnored(downloadItem) {
 	gets fixed the following (or ID equiv) is not possible
 	return downloadItem.byExtensionName && downloadItem.byExtensionName == 'vd';
 	*/
+}
+
+function notifyUser(preset, message) {
+	const options = {
+		iconUrl: preset.iconUrl,
+		message: message,
+		title: preset.title,
+		type: 'basic'
+	};
+	browser.notifications.create(options);
 }
 
 async function get(url) {
@@ -80,7 +79,7 @@ function processLink(link, fileDir) {
 			return linkHref;
 		}
 	} catch (e) {
-		console.debug(`skipping, ${e}`);
+		// ignore hrefs that cannot be made into URL
 	}
 }
 
@@ -105,8 +104,10 @@ function matchLinks(pattern, urls) {
 }
 
 function matchFileSumsLinks(filename, urls) {
-	const re = new RegExp('^' + filename
-		+ '(?:.sha(?:512|256|1)|.md5|.digests|.hash.txt)(?!.asc|.pgp|.sig|.sign)$', 'i');
+	const fileSpecificRe = '^'
+		+ filename
+		+ '(?:.sha(?:512|256|1)|.md5|.digests|.hash.txt)(?!.asc|.pgp|.sig|.sign)$';
+	const re = new RegExp(fileSpecificRe, 'i');
 	return matchLinks(re, urls);
 }
 
@@ -183,28 +184,28 @@ async function downloadDigest(url) {
 function handleError(err, downloadId) {
 	console.error(`${err}`);
 	cleanup(downloadId);
-	updateIcon(Preset.error);
+	notifyUser(Preset.error, err);
 }
 
 
-function handleResponse(response) {
+function handleResponse(response, filePath) {
 	if (response.verdict) {
 		switch (response.verdict) {
 		case 'i':
-			console.info('integrity verified');
-			updateIcon(Preset.integrity);
+			console.info(`integrity verified - ${filePath}`);
+			notifyUser(Preset.integrity, filePath);
 			break;
 		case 'a':
-			console.info('authenticity verified');
-			updateIcon(Preset.authenticity);
+			console.info(`authenticity verified - ${filePath}`);
+			notifyUser(Preset.authenticity, filePath);
 			break;
 		default:
-			console.info('verification failed');
-			updateIcon(Preset.fail);
+			console.info(`verification failed - ${filePath}`);
+			notifyUser(Preset.fail, filePath);
 		}
 	} else if (response.error) {
 		console.error(response.error);
-		updateIcon(Preset.error);
+		notifyUser(Preset.error, filePath);
 	}
 
 }
@@ -223,7 +224,7 @@ async function sendToNativeApp(entryId) {
 	try {
 		const response = await browser.runtime.sendNativeMessage('io.github.vd', serialized);
 		console.info(`native app responded: ${JSON.stringify(response, null, '\t')}`);
-		handleResponse(response);
+		handleResponse(response, entry.inputFile);
 		cleanup(entryId);
 	} catch (e) {
 		throw Error(`unable to communicate with vd application: ${e}`);
@@ -306,4 +307,3 @@ async function removeTraces(id) {
 
 browser.downloads.onChanged.addListener(handleDownloadChanged);
 browser.downloads.onCreated.addListener(handleDownloadCreated);
-browser.browserAction.onClicked.addListener(resetBrowserAction);

@@ -1,10 +1,10 @@
 {
 
+"description": "Verify downloaded files against provided digests.",
+"homepage_url": "https://github.com/mmatous/vd",
 "manifest_version": 2,
 "name": "vd",
-"version": "0.1.0",
-"description": "Verify downloaded files against provided digests.",
-
+"version": "0.2.0",
 
 "icons": {
 	"48": "icon/vd-normal.svg",
@@ -14,6 +14,7 @@
 "permissions": [
 	"downloads",
 	"nativeMessaging",
+	"notifications",
 	"<all_urls>"
 ],
 
@@ -24,13 +25,8 @@
 	}
 },
 
-"browser_action": {
-	"default_icon": "icon/vd-normal.svg",
-	"default_title": "vd"
-},
-
 "background": {
-	"scripts": ["./background.js"]
+	"scripts": ["./vd-background.js"]
 }
 
 }

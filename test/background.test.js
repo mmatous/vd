@@ -172,19 +172,19 @@ test('downloadDigest() rejects on rejected downloads', async () => {
 });
 
 test('updateIcon() calls API with correct arguments', () => {
-	bg.updateIcon(bg.Preset.integrity);
-	expect(browser.browserAction.setIcon.withArgs({ path: '../icon/vd-integrity.svg' }).calledOnce)
-		.toEqual(true);
-	expect(browser.browserAction.setTitle.withArgs({ title: 'vd — integrity verified' }).calledOnce)
-		.toEqual(true);
-});
-
-test('resetBrowserAction() resets text & icon to normal', () => {
-	bg.resetBrowserAction();
-	expect(browser.browserAction.setIcon.withArgs({ path: '../icon/vd-normal.svg' }).calledOnce)
-		.toEqual(true);
-	expect(browser.browserAction.setTitle.withArgs({ title: 'vd' }).calledOnce)
-		.toEqual(true);
+	const testPreset = {
+		iconUrl: 'testUrl',
+		title: 'testTitle'
+	};
+	bg.notifyUser(testPreset, 'testMsg');
+	expect(browser.notifications.create.withArgs(
+		{
+			iconUrl: 'testUrl',
+			message: 'testMsg',
+			title: 'testTitle',
+			type: 'basic',
+		}
+	).calledOnce).toEqual(true);
 });
 
 //this is a hack, see shouldBeIgnored() for more info
@@ -288,12 +288,6 @@ test('serializeEntry() returns object for consumption by vd-verifier', () => {
 	expect(res['input-file']).toEqual('/path/file.f');
 	expect(res['digest-file']).toEqual('/path/test.file.sha1');
 	expect(Object.keys(res).length).toEqual(3);
-});
-
-test('handleResponse() handles response correctly', () => {
-	bg.handleResponse({ 'verdict': 'i' });
-
-	expect(browser.browserAction.setIcon.args[0][0]).toEqual({ path: bg.Preset.integrity.icon });
 });
 
 test('handleDownloadCreated() creates appropriate entry in "records" if successful', async () => {
