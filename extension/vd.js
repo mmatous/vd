@@ -8,7 +8,7 @@ import {
 	matchFileSumsLinks,
 	matchAgregatedSumsLinks
 } from './parsing.js';
-import { Preset, RememberDownloads } from './constants.js';
+import { FetchTimeoutMs, Preset, RememberDownloads } from './constants.js';
 
 export const downloadList = new DownloadList(RememberDownloads);
 
@@ -31,17 +31,23 @@ function notifyUser(preset, message) {
 	browser.notifications.create(options);
 }
 
+export async function boundedFetch(url) {
+	const timeout = new Promise((_, reject) => {
+		setTimeout(reject, FetchTimeoutMs, `Fetch call to ${url} timed out`);
+	});
+	return Promise.race([ fetch(url, { method: 'GET' }), timeout ]);
+}
+
 export async function get(url) {
-	try {
-		const response = await fetch(url, { method: 'GET' });
-		if (response.ok) {
-			return response.text();
-		} else {
-			throw Error(response.statusText);
-		}
-	} catch(e) {
-		throw Error(`failed fetch() for ${url}: ${e}`);
+	const response = await boundedFetch(url).catch(err => {
+		throw Error(`failed fetch() for ${url}: ${err}`);
+	});
+	if (response.ok) {
+		return response.text();
+	} else {
+		throw Error(`failed fetch() for ${url}: ${response.statusText}`);
 	}
+
 }
 
 export async function getDigestUrls(url) {

@@ -7,3 +7,5 @@ export const Preset = Object.freeze({
 });
 
 export const RememberDownloads = 10;
+
+export const FetchTimeoutMs = 2000;

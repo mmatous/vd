@@ -4,6 +4,7 @@ import * as browser from 'sinon-chrome/webextensions';
 
 import fetch from 'jest-fetch-mock';
 import {
+	boundedFetch,
 	cleanup,
 	createListEntry,
 	downloadDigest,
@@ -37,12 +38,13 @@ beforeAll(() => {
 
 beforeEach(() => {
 	fetch.resetMocks();
+	downloadList.downloads = new Array();
+	jest.clearAllTimers();
 	browser.flush();
 	// just let these pass where not direct subject to testing
 	browser.downloads.removeFile.returns(Promise.resolve());
 	browser.downloads.erase.returns(Promise.resolve());
 	browser.downloads.cancel.returns(Promise.resolve());
-	downloadList.downloads = new Array();
 });
 
 test('get() returns text response correctly', async () => {
@@ -56,7 +58,7 @@ test('get() returns text response correctly', async () => {
 test('get() rejects on non-ok status code', async () => {
 	fetch.mockResponseOnce('fail', { status: 404 });
 	await expect(get('https://host.io')).rejects.toEqual(
-		Error('failed fetch() for https://host.io: Error: Not Found')
+		Error('failed fetch() for https://host.io: Not Found')
 	);
 });
 
@@ -64,6 +66,15 @@ test('get() rejects on fetch rejection', async () => {
 	fetch.mockRejectOnce('dns fail');
 	await expect(get('https://host.io'))
 		.rejects.toEqual(Error('failed fetch() for https://host.io: dns fail'));
+});
+
+test('boundedFetch() has 2 sec timeout', async () => {
+	fetch.mockResponseOnce(
+		() => { return new Promise(resolve => setTimeout(() => resolve({ body: 'ok' }), 4000)); }
+	);
+	const res = boundedFetch('https://host.io');
+	jest.advanceTimersByTime(3000);
+	await expect(res).rejects.toEqual('Fetch call to https://host.io timed out');
 });
 
 test('selectDigest() returns first available option if possible', () => {
