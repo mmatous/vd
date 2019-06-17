@@ -38,6 +38,8 @@ downloads — this is necessary so vd can access and react to downloads as well 
 
 nativeMessaging — verification itself is performed outside of extension due to API limitations.
 
+notifications — currently the only way of communicating with the user
+
 <all_urls> — extension must be able to query any site to parse it for potential digest/signature links
 
 ## Build
@@ -52,7 +54,7 @@ yarn build
 
 #### Firefox
 
-[Firefox Add-ons web site](https://addons.mozilla.org/en-US/firefox/addon/vd).
+[Firefox Add-ons web site](https://addons.mozilla.org/en-US/firefox/addon/vdownloads/).
 
 You will also need vd-verifier application. You can get it [here](https://github.com/mmatous/vd-verifier/releases)
 
