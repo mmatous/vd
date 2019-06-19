@@ -1,3 +1,7 @@
+![GitHub](https://img.shields.io/github/license/mmatous/vd.svg?style=plastic)
+![Mozilla Add-on](https://img.shields.io/amo/v/vdownloads.svg?style=plastic)
+[![Bitcoin](https://img.shields.io/badge/donate-crypto-blue.svg?style=plastic)](https://github.com/mmatous/vd/wiki/Donate)
+
 # vd
 
 Browser extension for verifying downloads.
@@ -18,29 +22,37 @@ __Use your regular tools for anything mission critical.__
 
 ## Usage
 
-Just works™ on every file download after installing the extension and application.
-User feedback is currently limited to extension icon changes for the latest download. You can also consult browser console output.
-Regular popup with a list of latest downloads is [in development](https://github.com/mmatous/vd/issues/1)
+Should just work™ on most file downloads after installing the extension and application.
+In case the autodetect fails, user can right click either link to a file containing digest or
+a text selection and designate those as either digest file or hex-encoded digest to be paired up
+with a download.
+
+User feedback is currently limited to notifications for the latest download. You can also consult browser console output.
+
+~~Regular popup with a list of latest downloads is [in development](https://github.com/mmatous/vd/issues/1)~~
 
 ### Features
 
-- Verify common digest files automatically (e.g. sha1sums or .md5 suffixes)
+- Verify most common digest files automatically (e.g. sha1sums or .md5 suffixes)
+- Manually assign digest to downloaded file
 
 #### Planned
 - Verify signatures
 - User-defined lists for searching
-- Context menu for manualy pairing digest/signature with download
+- ~~Context menu for manualy pairing digest/signature with download~~  Done
 - Nicer logo!
 
 ## Permissions
 
-downloads — this is necessary so vd can access and react to downloads as well as initiate downloads of its own (digest files, signatures).
+downloads—this is necessary so vd can access and react to downloads as well as initiate downloads of its own (digest files, signatures).
 
-nativeMessaging — verification itself is performed outside of extension due to API limitations.
+menus—currently the only way of communicating with the user
 
-notifications — currently the only way of communicating with the user
+nativeMessaging—verification itself is performed outside of extension due to extension API limitations.
 
-<all_urls> — extension must be able to query any site to parse it for potential digest/signature links
+notifications—currently the only way of communicating with the user
+
+<all_urls>—extension must be able to query any site to parse it for potential digest/signature links
 
 ## Build
 
@@ -71,11 +83,3 @@ No plans for porting right now.
 ### License
 
 [GPLv3](LICENSE).
-
-### Donate
-
-BTC: [3B7EUmUb71q7WWdjLkyfssXVwzkTPSpuef](https://blockexplorer.com/address/3B7EUmUb71q7WWdjLkyfssXVwzkTPSpuef)
-
-ETH: [0x7bd7BAF097F7AAA0733B92376aFf25B5E00FEa05](https://blockscout.com/eth/mainnet/address/0x7bd7baf097f7aaa0733b92376aff25b5e00fea05/)
-
-XMR: 84TsTeWZ8ScZWPEK6yEuxCBG35UscCCd7h1bgjfwLYUcS9bgVPqXW4HUtBEYdRMbagauuuKGUwkxmRpsud2v12PmLQuyTd2
