@@ -4,12 +4,10 @@ import * as browser from 'sinon-chrome/webextensions';
 
 import fetch from 'jest-fetch-mock';
 import {
-	boundedFetch,
 	cleanup,
 	createListEntry,
 	downloadDigest,
 	downloadList,
-	get,
 	getDigestUrls,
 	handleDownloadCreated,
 	selectDigest,
@@ -31,6 +29,17 @@ const testDigestItem = {
 	filename: '/a/verifiable.file.sha1'
 };
 
+const downloadListItem2 = {
+	digestFile: '/a/verifiable.file.sha1',
+	digestHex: undefined,
+	digestId: 2,
+	digestState: DownloadState.downloading,
+	id: 1,
+	inputFile: '/a/verifiable.file',
+	inputFileState: DownloadState.downloading,
+	originalFilename: 'f.ext',
+};
+
 beforeAll(() => {
 	window.browser = browser;
 	window.fetch = fetch;
@@ -45,36 +54,6 @@ beforeEach(() => {
 	browser.downloads.removeFile.returns(Promise.resolve());
 	browser.downloads.erase.returns(Promise.resolve());
 	browser.downloads.cancel.returns(Promise.resolve());
-});
-
-test('get() returns text response correctly', async () => {
-	fetch.mockResponseOnce('<html></html>');
-	const res = await get('https://host.io');
-	expect(fetch.mock.calls.length).toEqual(1);
-	expect(fetch.mock.calls[0][0]).toEqual('https://host.io');
-	expect(res).toEqual('<html></html>');
-});
-
-test('get() rejects on non-ok status code', async () => {
-	fetch.mockResponseOnce('fail', { status: 404 });
-	await expect(get('https://host.io')).rejects.toEqual(
-		Error('failed fetch() for https://host.io: Not Found')
-	);
-});
-
-test('get() rejects on fetch rejection', async () => {
-	fetch.mockRejectOnce('dns fail');
-	await expect(get('https://host.io'))
-		.rejects.toEqual(Error('failed fetch() for https://host.io: dns fail'));
-});
-
-test('boundedFetch() has 2 sec timeout', async () => {
-	fetch.mockResponseOnce(
-		() => { return new Promise(resolve => setTimeout(() => resolve({ body: 'ok' }), 4000)); }
-	);
-	const res = boundedFetch('https://host.io');
-	jest.advanceTimersByTime(3000);
-	await expect(res).rejects.toEqual('Fetch call to https://host.io timed out');
 });
 
 test('selectDigest() returns first available option if possible', () => {
@@ -151,7 +130,8 @@ test('getDigestUrls() return a list of digest urls', async () => {
 test('cleanup() removes file (digest), deletes ext. entry (digest, file)', async () => {
 	browser.downloads.removeFile.returns(Promise.resolve());
 	browser.downloads.erase.returns(Promise.resolve([0]));
-	const res = createListEntry(testDownloadItem, testDigestItem);
+	const res = createListEntry(testDownloadItem);
+	res.setDigestFile(testDigestItem);
 	res.markDownloaded(testDigestItem.id);
 
 	await cleanup(res);
@@ -164,7 +144,8 @@ test('cleanup() removes file (digest), deletes ext. entry (digest, file)', async
 test('cleanup() clears downloads even if file removal fails', async () => {
 	browser.downloads.erase.returns(Promise.resolve([0]));
 	browser.downloads.cancel.returns(Promise.reject('other error'));
-	const res = createListEntry(testDownloadItem, testDigestItem);
+	const res = createListEntry(testDownloadItem);
+	res.setDigestFile(testDigestItem);
 
 	await cleanup(res);
 	expect(browser.downloads.removeFile.callCount).toBe(0);
@@ -172,7 +153,7 @@ test('cleanup() clears downloads even if file removal fails', async () => {
 	expect(browser.downloads.erase.args[0][0]).toEqual({ id: testDigestItem.id });
 });
 
-test('handleDownloadCreated() returns new entry if successful', async () => {
+test('handleDownloadCreated() returns new entry with digest info if all successful', async () => {
 	const response = `
 	<!DOCTYPE html>
 	<html lang="en">
@@ -198,31 +179,21 @@ test('handleDownloadCreated() returns new entry if successful', async () => {
 	browser.downloads.search.returns(Promise.resolve([testDigestItem]));
 
 	const res = await handleDownloadCreated(testDownloadItem);
-	expect(res).toEqual({
-		digestState: DownloadState.downloading,
-		digestId: testDigestItem.id,
-		digestFile: testDigestItem.filename,
-		id: testDownloadItem.id,
-		inputFileState: DownloadState.downloading,
-		inputFile: testDownloadItem.filename,
-		originalFilename: 'f.ext',
-	});
+	expect(res).toEqual(downloadListItem2);
 });
 
-test('handleDownloadCreated() does not create entry in "records" if no page to parse', async () => {
+test('handleDownloadCreated() returns undefined if no page to parse', async () => {
 	fetch.mockRejectOnce('dns fail');
-	browser.downloads.download.returns(Promise.resolve(43));
+	browser.downloads.download.returns(Promise.resolve(testDownloadItem.id));
 	browser.downloads.search.returns(
-		Promise.resolve([{ filename: '/path/to/download/verifiable.file.sha1' }])
+		Promise.resolve([testDownloadItem])
 	);
 
-	const res = await handleDownloadCreated(
-		{ id: 0, url: 'https://host.io/path/verifiable.file', filename: '/path/verifiable.file' }
-	);
+	const res = await handleDownloadCreated(testDownloadItem);
 	expect(res).toEqual(undefined);
 });
 
-test('handleDownloadCreated() does not create entry in "records" if digest download fails', async () => {
+test('handleDownloadCreated() returns undefined if digest download fails', async () => {
 	const response = `
 	<!DOCTYPE html>
 	<html lang="en">

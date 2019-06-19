@@ -1,9 +1,11 @@
 'use strict;';
 
+import { Preset } from './constants.js';
 import { getFilename } from './parsing.js';
+import { isDigestString, notifyUser } from './utils.js';
 
 export const DownloadState = Object.freeze(
-	{unknown: 1, downloading: 2, downloaded: 3, noexist: 4}
+	{unknown: 1, downloading: 2, downloaded: 3, noexist: 4, assignedManually: 5}
 );
 
 export class DownloadList {
@@ -11,13 +13,14 @@ export class DownloadList {
 	// #regularDownloads;
 	// #digestPairings;
 
-	constructor(capacity) {
+	constructor(capacity, deleteItemCb) {
 		this.capacity = capacity;
 		this.downloads = new Array();
+		this.deleteItemCb = deleteItemCb;
 	}
 
-	createEntry(downloadItem, digestId, digestPath) {
-		const newEntry = new DownloadListItem(downloadItem, digestId, digestPath);
+	createEntry(downloadItem) {
+		const newEntry = new DownloadListItem(downloadItem);
 		// no duplicity check, download IDs are guaranteed to be unique
 		this.downloads.push(newEntry);
 		this.trimDownloadList();
@@ -56,15 +59,25 @@ export class DownloadList {
 	}
 
 	trimDownloadList() {
-		this.downloads.splice(0, this.downloads.length - this.capacity);
+		const deleted = this.downloads.splice(0, this.downloads.length - this.capacity);
+		if (this.deleteItemCb) {
+			for (const item of deleted) {
+				this.deleteItemCb(item.id);
+			}
+		}
+	}
+
+	empty() {
+		return this.downloads.length === 0;
 	}
 }
 
 export class DownloadListItem {
 
-	constructor(downloadItem, digestId, digestPath) {
-		this.digestId = digestId;
-		this.digestFile = digestPath;
+	constructor(downloadItem) {
+		this.digestId = undefined;
+		this.digestFile = undefined;
+		this.digestHex = undefined;
 		this.digestState = DownloadState.downloading;
 		this.id = downloadItem.id;
 		this.inputFile = downloadItem.filename; //is absolute path
@@ -72,9 +85,18 @@ export class DownloadListItem {
 		this.originalFilename = getFilename(downloadItem.url);
 	}
 
-	readyForVerification() {
+	bothFilesDownloaded() {
 		return this.inputFileState === DownloadState.downloaded
 			&& this.digestState === DownloadState.downloaded;
+	}
+
+	fileDownloadedDigestManual() {
+		return this.inputFileState === DownloadState.downloaded
+			&& this.digestHex !== undefined;
+	}
+
+	readyForVerification() {
+		return this.bothFilesDownloaded() || this.fileDownloadedDigestManual();
 	}
 
 	markDownloaded(id) {
@@ -83,7 +105,7 @@ export class DownloadListItem {
 		} else if (this.digestId === id) {
 			this.digestState = DownloadState.downloaded;
 		} else {
-			throw Error(`invalid id to be marked downloaded ${id} for ${this.id} (${this.inputFile})`);
+			throw Error(`invalid id to be marked downloaded ${id} for ${this.inputFile} (${this.id})`);
 		}
 	}
 
@@ -91,7 +113,33 @@ export class DownloadListItem {
 		const res = {};
 		res['original-filename'] = this.originalFilename;
 		res['input-file'] = this.inputFile;
-		res['digest-file'] = this.digestFile;
+		if (this.digestFile) {
+			res['digest-file'] = this.digestFile;
+		} else {
+			res['digest-direct'] = this.digestHex;
+		}
 		return res;
+	}
+
+	setDigest(hexString) {
+		if (!isDigestString(hexString)) {
+			const line = `${hexString} is not a valid digest string`;
+			console.info(line);
+			notifyUser(Preset.error, line);
+			return false;
+		}
+		this.digestFile = undefined;
+		this.digestHex = hexString;
+		this.digestId = undefined;
+		this.digestState = DownloadState.assignedManually;
+		return true;
+	}
+
+	setDigestFile(digestDownloadItem) {
+		this.digestFile = digestDownloadItem.filename;
+		this.digestHex = undefined;
+		this.digestId = digestDownloadItem.id;
+		this.digestState = DownloadState.downloading;
+		return true;
 	}
 }

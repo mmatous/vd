@@ -8,6 +8,7 @@
 
 "permissions": [
 	"downloads",
+	"menus",
 	"nativeMessaging",
 	"notifications",
 	"<all_urls>"

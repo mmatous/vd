@@ -1,16 +1,22 @@
 'use strict';
 
+import { Preset, RememberDownloads } from './constants.js';
+import {
+	createContextMenuChildren,
+	createContextMenuParents,
+	deleteContextMenu
+} from './contextmenus.js';
 import { DownloadList, DownloadState } from './downloadlist.js';
 import {
 	getFilename,
-	getFileDir,
+	getFileDirUrl,
 	getSameOriginLinks,
 	matchFileSumsLinks,
 	matchAgregatedSumsLinks
 } from './parsing.js';
-import { FetchTimeoutMs, Preset, RememberDownloads } from './constants.js';
+import { get, notifyUser } from './utils.js';
 
-export const downloadList = new DownloadList(RememberDownloads);
+export const downloadList = new DownloadList(RememberDownloads, deleteContextMenu);
 
 export function shouldBeIgnored(downloadItem) {
 	return downloadItem.url.endsWith('#vd-ignore');
@@ -21,38 +27,9 @@ export function shouldBeIgnored(downloadItem) {
 	*/
 }
 
-function notifyUser(preset, message) {
-	const options = {
-		iconUrl: browser.runtime.getURL(preset.iconUrl),
-		message: message,
-		title: preset.title,
-		type: 'basic'
-	};
-	browser.notifications.create(options);
-}
-
-export async function boundedFetch(url) {
-	const timeout = new Promise((_, reject) => {
-		setTimeout(reject, FetchTimeoutMs, `Fetch call to ${url} timed out`);
-	});
-	return Promise.race([ fetch(url, { method: 'GET' }), timeout ]);
-}
-
-export async function get(url) {
-	const response = await boundedFetch(url).catch(err => {
-		throw Error(`failed fetch() for ${url}: ${err}`);
-	});
-	if (response.ok) {
-		return response.text();
-	} else {
-		throw Error(`failed fetch() for ${url}: ${response.statusText}`);
-	}
-
-}
-
 export async function getDigestUrls(url) {
 	const filename = getFilename(url.href);
-	const fileDir = getFileDir(url.href);
+	const fileDir = getFileDirUrl(url.href);
 	const responseText = await get(fileDir);
 	const urls = getSameOriginLinks(responseText, fileDir);
 	const singleFileSums = matchFileSumsLinks(filename, urls);
@@ -63,24 +40,37 @@ export function selectDigest(digests) {
 	return digests[0];
 }
 
-export function createListEntry(downloadItem, digestItem) {
-	return downloadList.createEntry(downloadItem, digestItem.id, digestItem.filename);
+export function createListEntry(downloadItem) {
+	if (downloadList.empty()) {
+		createContextMenuParents();
+	}
+	createContextMenuChildren(downloadItem);
+	return downloadList.createEntry(downloadItem);
+}
 
+export async function downloadDigestForEntry(entry, digestUrl) {
+	const digestDownloadItem = await downloadDigest(digestUrl);
+	entry.setDigestFile(digestDownloadItem);
+}
+
+async function autodetectDigest(originalUrl, entry) {
+	const digestUrls = await getDigestUrls(originalUrl);
+	const digest = selectDigest(digestUrls);
+	if (!digest) {
+		console.info(`No viable digest found for ${entry.inputFile} (${entry.id})`);
+		return;
+	}
+	await downloadDigestForEntry(entry, digest);
 }
 
 export async function handleDownloadCreated(downloadItem) {
 	if (shouldBeIgnored(downloadItem)) {
 		return;
 	}
+	const entry = createListEntry(downloadItem);
 	try {
-		const digestUrls = await getDigestUrls(new URL(downloadItem.url));
-		const digest = selectDigest(digestUrls);
-		if (!digest) {
-			console.info(`No viable digest found for ${downloadItem.filename} (${downloadItem.id})`);
-			return;
-		}
-		const digestDownloadItem = await downloadDigest(digest);
-		return createListEntry(downloadItem, digestDownloadItem);
+		await autodetectDigest(new URL(downloadItem.url), entry);
+		return entry;
 	} catch (e) {
 		await handleError(e, downloadItem);
 	}
@@ -100,33 +90,37 @@ export async function downloadDigest(url) {
 	}
 }
 
-async function handleError(err, entry) { //todo: pass through whole entry
+async function handleError(err, entry) {
 	console.error(`${err}`);
 	await cleanup(entry);
-	notifyUser(Preset.error, err);
+	await notifyUser(Preset.error, err);
 }
 
+async function handleVerdict(verdict, filePath) {
+	switch (verdict) {
+	case 'i':
+		console.info(`integrity verified - ${filePath}`);
+		await notifyUser(Preset.integrity, filePath);
+		break;
+	case 'a':
+		console.info(`authenticity verified - ${filePath}`);
+		await notifyUser(Preset.authenticity, filePath);
+		break;
+	default:
+		console.info(`verification failed - ${filePath}`);
+		await notifyUser(Preset.fail, filePath);
+	}
+}
 
-function handleResponse(response, filePath) {
+async function handleResponse(response, filePath) {
 	if (response.verdict) {
-		switch (response.verdict) {
-		case 'i':
-			console.info(`integrity verified - ${filePath}`);
-			notifyUser(Preset.integrity, filePath);
-			break;
-		case 'a':
-			console.info(`authenticity verified - ${filePath}`);
-			notifyUser(Preset.authenticity, filePath);
-			break;
-		default:
-			console.info(`verification failed - ${filePath}`);
-			notifyUser(Preset.fail, filePath);
-		}
+		handleVerdict(response.verdict, filePath);
 	} else if (response.error) {
 		console.error(response.error);
-		notifyUser(Preset.error, filePath);
+		await notifyUser(Preset.error, `${response.error}: ${filePath}`);
+	} else {
+		throw Error(`invalid response ${JSON.stringify(response)}`);
 	}
-
 }
 
 async function sendToNativeApp(entry) {
@@ -134,11 +128,11 @@ async function sendToNativeApp(entry) {
 	try {
 		const response = await browser.runtime.sendNativeMessage('io.github.vd', serialized);
 		console.info(`native app responded: ${JSON.stringify(response, null, '\t')}`);
-		handleResponse(response, entry.inputFile);
-		await cleanup(entry);
+		await handleResponse(response, entry.inputFile);
 	} catch (e) {
 		throw Error(`unable to communicate with vd application: ${e}`);
 	}
+	await cleanup(entry);
 }
 
 async function handleDownloadFinished(delta) {
@@ -147,12 +141,17 @@ async function handleDownloadFinished(delta) {
 		return;
 	}
 	entry.markDownloaded(delta.id);
-	if (entry.readyForVerification()) {
-		try {
-			await sendToNativeApp(entry);
-		} catch (e) {
-			handleError(e, entry);
-		}
+	await sendIfReady(entry);
+}
+
+export async function sendIfReady(entry) {
+	if (!entry.readyForVerification()) {
+		return;
+	}
+	try {
+		await sendToNativeApp(entry);
+	} catch (e) {
+		await handleError(e, entry);
 	}
 }
 
@@ -161,6 +160,9 @@ async function handleDownloadInterrupted(delta) {
 		console.warn(`digest download ${delta.id} interrupted, deleting entries`);
 	} else if (downloadList.hasRegularDownload(delta.id)) {
 		console.warn(`download ${delta.id} interrupted, deleting entries`);
+	} else {
+		console.warn(`unrecorded download (${delta.id}) interrupted`);
+		return;
 	}
 	const entry = downloadList.getByAnyId(delta.id);
 	await cleanup(entry);
@@ -178,12 +180,14 @@ export async function cleanup(entry) {
 	if (entry.digestState === DownloadState.downloaded) {
 		browser.downloads.removeFile(entry.digestId)
 			.catch(error => console.warn(`unable to remove file: ${error}`));
-	} else {
+	} else if (entry.digestState === DownloadState.downloading) {
 		browser.downloads.cancel(entry.digestId)
 			.catch(error => console.warn(`unable to cancel download: ${error}`));
 	}
-	browser.downloads.erase({id: entry.digestId})
-		.catch(error => console.warn(`unable to remove from downloads: ${error}`));
+	if (entry.digestId) {
+		browser.downloads.erase({id: entry.digestId})
+			.catch(error => console.warn(`unable to remove from downloads: ${error}`));
+	}
 	// do not delete entry from downloadList, it will be dropped when capacity overflows
 }
 

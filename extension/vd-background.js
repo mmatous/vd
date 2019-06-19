@@ -18,7 +18,9 @@
 
 'use strict';
 
+import { handleMenuClicked } from './contextmenus.js';
 import { handleDownloadChanged, handleDownloadCreated } from './vd.js';
 
 browser.downloads.onChanged.addListener(handleDownloadChanged);
 browser.downloads.onCreated.addListener(handleDownloadCreated);
+browser.menus.onClicked.addListener(handleMenuClicked);

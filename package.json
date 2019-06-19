@@ -4,7 +4,7 @@
 	"license": "GPL-3.0-or-later",
 	"scripts": {
 		"test": "jest",
-		"lint": "yarn run web-ext lint --source-dir ./extension/ && eslint ./extension/vd-background.js",
+		"lint": "yarn run web-ext lint --source-dir ./extension/ && eslint ./extension/*.js && eslint ./test/*.js",
 		"wrun": "web-ext run --source-dir ./extension",
 		"build": "web-ext build --source-dir ./extension --overwrite-dest",
 		"sign": "web-ext sign --source-dir ./extension"

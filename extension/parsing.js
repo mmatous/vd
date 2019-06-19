@@ -7,12 +7,17 @@ export function getFilename(href) {
 	return href.slice(lastSlash);
 }
 
-export function getFileDir(href) {
-	const lastSlash = href.lastIndexOf('/') + 1;
-	return new URL(href.slice(0, lastSlash));
+export function getFileDir(filePath) {
+	const lastSlash = filePath.lastIndexOf('/') + 1;
+	return filePath.slice(0, lastSlash);
 }
 
-function makeAbsolute(file, dir) { //todo: test this and URL() with file://
+export function getFileDirUrl(href) {
+	const dir = getFileDir(href);
+	return new URL(dir);
+}
+
+function makeAbsolute(file, dir) {
 	if (file.startsWith('http://') || file.startsWith('https://')) {
 		return new URL(file);
 	} else {

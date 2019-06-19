@@ -1,7 +1,7 @@
 'use strict';
 
 import {
-	getFileDir,
+	getFileDirUrl,
 	getFilename,
 	getSameOriginLinks,
 	matchAgregatedSumsLinks,
@@ -20,8 +20,8 @@ test('getFilename() returns empty string if not present', () => {
 	expect(getFilename(u)).toBe('');
 });
 
-test('getFileDir() return file directory as URL', () => {
-	expect(getFileDir('https://host.io/path/md5sums'))
+test('getFileDirUrl() return file directory as URL', () => {
+	expect(getFileDirUrl('https://host.io/path/md5sums'))
 		.toEqual(new URL('https://host.io/path/'));
 });
 
