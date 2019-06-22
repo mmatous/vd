@@ -3,12 +3,10 @@ module.exports = {
 		'browser': true,
 		'es6': true,
 		'jest': true,
-		'node': true
+		'node': true,
+		"webextensions": true
 	},
 	'extends': 'eslint:recommended',
-	'globals': {
-        'browser': 'readonly'
-    },
 	'parserOptions': {
 		'ecmaVersion': 2018,
 		'sourceType': 'module'
