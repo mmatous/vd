@@ -1,8 +1,8 @@
-![GitHub](https://img.shields.io/github/license/mmatous/vd.svg?style=plastic)
-![Mozilla Add-on](https://img.shields.io/amo/v/vdownloads.svg?style=plastic)
-[![Bitcoin](https://img.shields.io/badge/donate-crypto-blue.svg?style=plastic)](https://github.com/mmatous/vd/wiki/Donate)
-
 # vd
+
+[![GitHub](https://img.shields.io/github/license/mmatous/vd.svg?style=plastic)](https://github.com/mmatous/vd/blob/master/LICENSE)
+[![Mozilla Add-on](https://img.shields.io/amo/v/vdownloads.svg?style=plastic)](https://addons.mozilla.org/en-US/firefox/addon/vdownloads/)
+[![Crypto](https://img.shields.io/badge/donate-crypto-blue.svg?style=plastic)](https://github.com/mmatous/vd/wiki/Donate)
 
 Browser extension for verifying downloads.
 
@@ -27,9 +27,7 @@ In case the autodetect fails, user can right click either link to a file contain
 a text selection and designate those as either digest file or hex-encoded digest to be paired up
 with a download.
 
-User feedback is currently limited to notifications for the latest download. You can also consult browser console output.
-
-~~Regular popup with a list of latest downloads is [in development](https://github.com/mmatous/vd/issues/1)~~
+User feedback is provided via notifications. You can also consult browser console output.
 
 ### Features
 
@@ -41,8 +39,11 @@ User feedback is currently limited to notifications for the latest download. You
 - User-defined lists for searching
 - ~~Context menu for manualy pairing digest/signature with download~~  Done
 - Nicer logo!
+- Localization & accessibility improvements
 
 ## Permissions
+
+<all_urls>—extension must be able to query any site to parse it for potential digest/signature links
 
 downloads—this is necessary so vd can access and react to downloads as well as initiate downloads of its own (digest files, signatures).
 
@@ -52,7 +53,7 @@ nativeMessaging—verification itself is performed outside of extension due to e
 
 notifications—currently the only way of communicating with the user
 
-<all_urls>—extension must be able to query any site to parse it for potential digest/signature links
+storage—settings persistence
 
 ## Build
 
@@ -66,11 +67,11 @@ yarn build
 
 #### Firefox
 
-[Firefox Add-ons web site](https://addons.mozilla.org/en-US/firefox/addon/vdownloads/).
+Download from [![Mozilla Add-on](https://img.shields.io/amo/v/vdownloads.svg?style=plastic)](https://addons.mozilla.org/en-US/firefox/addon/vdownloads/).
 
 You will also need vd-verifier application. You can get it [here](https://github.com/mmatous/vd-verifier/releases)
 
-#### Chromium based
+#### Chromium-based
 
 [Not yet available](https://github.com/mmatous/vd/issues/3).
 
@@ -79,6 +80,14 @@ You will also need vd-verifier application. You can get it [here](https://github
 No plans for porting right now.
 
 ## About
+
+### Software used
+
+Libraries from the awesome [TinyWebEx](https://github.com/TinyWebEx) project by [rugk](https://github.com/rugk):
+
+- AddonSettings. [MIT](https://github.com/TinyWebEx/AddonSettings/blob/b5e57fc456395613f6e1e5825c0ab670528eb552/LICENSE.md) license.
+
+- AutomaticSettings. [MIT](https://github.com/TinyWebEx/AutomaticSettings/blob/0b630205ec0aa78628e95ed97137776e399df632/LICENSE.md) license.
 
 ### License
 
