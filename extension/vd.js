@@ -1,6 +1,7 @@
 'use strict';
-
-import { Preset, RememberDownloads } from './constants.js';
+import * as AddonSettings
+	from './3rdparty/TinyWebEx/AddonSettings/AddonSettings.js';
+import { Preset, RememberDownloads, Settings } from './constants.js';
 import {
 	createContextMenuChildren,
 	createContextMenuParents,
@@ -97,18 +98,26 @@ async function handleError(err, entry) {
 }
 
 async function handleVerdict(verdict, filePath) {
+	let notifyPreset;
+	let shouldNotify;
 	switch (verdict) {
 	case 'i':
 		console.info(`integrity verified - ${filePath}`);
-		await notifyUser(Preset.integrity, filePath);
+		notifyPreset = Preset.integrity;
+		shouldNotify = await AddonSettings.get(Settings.notifySuccess);
 		break;
 	case 'a':
 		console.info(`authenticity verified - ${filePath}`);
-		await notifyUser(Preset.authenticity, filePath);
+		notifyPreset = Preset.authenticity;
+		shouldNotify = await AddonSettings.get(Settings.notifySuccess);
 		break;
 	default:
 		console.info(`verification failed - ${filePath}`);
-		await notifyUser(Preset.fail, filePath);
+		notifyPreset = Preset.fail;
+		shouldNotify = await AddonSettings.get(Settings.notifyFail);
+	}
+	if (shouldNotify) {
+		await notifyUser(notifyPreset, filePath);
 	}
 }
 
@@ -117,7 +126,10 @@ async function handleResponse(response, filePath) {
 		handleVerdict(response.verdict, filePath);
 	} else if (response.error) {
 		console.error(response.error);
-		await notifyUser(Preset.error, `${response.error}: ${filePath}`);
+		const shouldNotify = await AddonSettings.get(Settings.notifyError);
+		if (shouldNotify) {
+			await notifyUser(Preset.error, `${response.error}: ${filePath}`);
+		}
 	} else {
 		throw Error(`invalid response ${JSON.stringify(response)}`);
 	}

@@ -6,14 +6,6 @@
 "name": "vd",
 "version": "0.2.0",
 
-"permissions": [
-	"downloads",
-	"menus",
-	"nativeMessaging",
-	"notifications",
-	"<all_urls>"
-],
-
 "applications": {
 	"gecko": {
 		"id": "vd@vd.io",
@@ -23,6 +15,20 @@
 
 "background": {
 	"page": "vd-background.html"
-}
+},
+
+"options_ui": {
+	"browser_style": true,
+	"page": "options/vd-options.html"
+},
+
+"permissions": [
+	"<all_urls>",
+	"downloads",
+	"menus",
+	"nativeMessaging",
+	"notifications",
+	"storage"
+]
 
 }
