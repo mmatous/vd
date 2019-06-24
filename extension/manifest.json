@@ -4,7 +4,7 @@
 "homepage_url": "https://github.com/mmatous/vd",
 "manifest_version": 2,
 "name": "vd",
-"version": "0.3.0",
+"version": "0.3.1",
 
 "applications": {
 	"gecko": {
