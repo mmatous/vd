@@ -57,9 +57,9 @@ export async function testVerifier() {
 	const testMessage = { ping: 'versionRequest' };
 	const response = await browser.runtime.sendNativeMessage(NativeAppId, testMessage);
 	console.info(`native app responded: ${JSON.stringify(response, null, '\t')}`);
-	if (!response.verdict) {
+	if (!response.result) {
 		throw Error(response);
 	} else {
-		return response.verdict;
+		return response.result;
 	}
 }

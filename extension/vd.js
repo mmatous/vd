@@ -139,8 +139,8 @@ async function handleVerdict(verdict, filePath) {
 }
 
 async function handleResponse(response, filePath) {
-	if (response.verdict) {
-		handleVerdict(response.verdict, filePath);
+	if (response.result) {
+		handleVerdict(response.result, filePath);
 	} else if (response.error) {
 		console.error(response.error);
 		const shouldNotify = await AddonSettings.get(Settings.notifyError);
