@@ -46,6 +46,14 @@ export async function getDigestUrls(url) {
 	return singleFileSums.length != 0 ? singleFileSums : matchAgregatedSumsLinks(urls);
 }
 
+export function handleInstalled() {
+	testVerifier().catch(() => {
+		const err = `vd-verifier is not functioning correctly.
+Please ensure you have the latest version from ${VdVerifierUrl}`;
+		notifyUser(Preset.error, err);
+	});
+}
+
 export function selectDigest(digests) {
 	return digests[0];
 }
