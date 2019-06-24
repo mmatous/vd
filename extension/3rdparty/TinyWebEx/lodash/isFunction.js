@@ -1,4 +1,4 @@
-import getTag from './.internal/getTag.js'
+import getTag from './internal/getTag.js'
 import isObject from './isObject.js'
 
 /**
