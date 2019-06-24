@@ -1,13 +1,22 @@
 'use strict';
 import * as AddonSettings
 	from './3rdparty/TinyWebEx/AddonSettings/AddonSettings.js';
-import { Preset, RememberDownloads, Settings } from './constants.js';
+import {
+	NativeAppId,
+	Preset,
+	RememberDownloads,
+	Settings,
+	VdVerifierUrl
+} from './constants.js';
 import {
 	createContextMenuChildren,
 	createContextMenuParents,
 	deleteContextMenu
 } from './contextmenus.js';
-import { DownloadList, DownloadState } from './downloadlist.js';
+import {
+	DownloadList,
+	DownloadState
+} from './downloadlist.js';
 import {
 	getFilename,
 	getFileDirUrl,
@@ -15,7 +24,7 @@ import {
 	matchFileSumsLinks,
 	matchAgregatedSumsLinks
 } from './parsing.js';
-import { get, notifyUser } from './utils.js';
+import { get, notifyUser, testVerifier } from './utils.js';
 
 export const downloadList = new DownloadList(RememberDownloads, deleteContextMenu);
 
@@ -138,13 +147,12 @@ async function handleResponse(response, filePath) {
 async function sendToNativeApp(entry) {
 	const serialized = entry.serialize();
 	try {
-		const response = await browser.runtime.sendNativeMessage('io.github.vd', serialized);
+		const response = await browser.runtime.sendNativeMessage(NativeAppId, serialized);
 		console.info(`native app responded: ${JSON.stringify(response, null, '\t')}`);
 		await handleResponse(response, entry.inputFile);
 	} catch (e) {
 		throw Error(`unable to communicate with vd application: ${e}`);
 	}
-	await cleanup(entry);
 }
 
 async function handleDownloadFinished(delta) {
@@ -154,6 +162,7 @@ async function handleDownloadFinished(delta) {
 	}
 	entry.markDownloaded(delta.id);
 	await sendIfReady(entry);
+	await cleanup(entry);
 }
 
 export async function sendIfReady(entry) {

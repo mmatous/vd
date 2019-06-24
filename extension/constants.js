@@ -15,3 +15,7 @@ export const Settings = Object.freeze({
 	notifyFail: 'notifyFail',
 	notifySuccess: 'notifySuccess'
 });
+
+export const NativeAppId = 'io.github.vd';
+
+export const VdVerifierUrl = 'https://github.com/mmatous/vd-verifier/releases/latest';

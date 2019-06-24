@@ -1,6 +1,6 @@
 'use strict';
 
-import { FetchTimeoutMs } from './constants.js';
+import { FetchTimeoutMs, NativeAppId } from './constants.js';
 
 export function isDigestString(hexStr) {
 	if (hexStr.length < 2 * (128 / 8)) { // at least md5, sha1... hex-encoded
@@ -32,6 +32,17 @@ export async function get(url) {
 	}
 }
 
+export async function getJson(url) {
+	const response = await boundedFetch(url).catch(err => {
+		throw Error(`failed fetch() for ${url}: ${err}`);
+	});
+	if (response.ok) {
+		return response.json();
+	} else {
+		throw Error(`failed fetch() for ${url}: ${response.statusText}`);
+	}
+}
+
 export async function notifyUser(preset, message) {
 	const options = {
 		iconUrl: browser.runtime.getURL(preset.iconUrl),
@@ -40,4 +51,15 @@ export async function notifyUser(preset, message) {
 		type: 'basic'
 	};
 	await browser.notifications.create(options);
+}
+
+export async function testVerifier() {
+	const testMessage = { ping: 'versionRequest' };
+	const response = await browser.runtime.sendNativeMessage(NativeAppId, testMessage);
+	console.info(`native app responded: ${JSON.stringify(response, null, '\t')}`);
+	if (!response.verdict) {
+		throw Error(response);
+	} else {
+		return response.verdict;
+	}
 }

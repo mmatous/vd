@@ -11,7 +11,7 @@
 		<fieldset>
 			<legend>Notification options</legend>
 			<label>
-				<input class="setting save-on-change" id="notifyError" type="checkbox"> Notify on verification notifyError
+				<input class="setting save-on-change" id="notifyError" type="checkbox"> Notify on verification error
 			</label>
 			<br>
 			<label>
@@ -19,8 +19,16 @@
 			</label>
 			<br>
 			<label>
-				<input class="setting save-on-change" id="notifySuccess" type="checkbox"> Notify on verification notifySuccess
+				<input class="setting save-on-change" id="notifySuccess" type="checkbox"> Notify on verification success
 			</label>
+		</fieldset>
+		<hr>
+		<fieldset>
+			<legend>Verifier options</legend>
+			<button id="testVerifier" name="testVerifier">Test</button>
+			<button id="downloadVerifier" name="downloadVerifier">Download latest</button><br><br>
+			<output id="testResult" name="testResult" for="testVerifier"></output><br>
+			<output id="latestVersion" name="latestVersion"></output>
 		</fieldset>
 	</body>
 </html>
