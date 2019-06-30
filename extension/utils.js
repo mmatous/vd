@@ -1,6 +1,6 @@
 'use strict';
 
-import { FetchTimeoutMs, NativeAppId } from './constants.js';
+import { FETCH_TIMEOUT_MS, NATIVE_APP_ID } from './constants.js';
 
 export function isDigestString(hexStr) {
 	if (hexStr.length < 2 * (128 / 8)) { // at least md5, sha1... hex-encoded
@@ -16,7 +16,7 @@ export function isDigestString(hexStr) {
 
 export async function boundedFetch(url) {
 	const timeout = new Promise((_, reject) => {
-		setTimeout(reject, FetchTimeoutMs, `Fetch call to ${url} timed out`);
+		setTimeout(reject, FETCH_TIMEOUT_MS, `Fetch call to ${url} timed out`);
 	});
 	return Promise.race([ fetch(url, { method: 'GET' }), timeout ]);
 }
@@ -55,7 +55,7 @@ export async function notifyUser(preset, message) {
 
 export async function testVerifier() {
 	const testMessage = { ping: 'versionRequest' };
-	const response = await browser.runtime.sendNativeMessage(NativeAppId, testMessage);
+	const response = await browser.runtime.sendNativeMessage(NATIVE_APP_ID, testMessage);
 	console.info(`native app responded: ${JSON.stringify(response, null, '\t')}`);
 	if (!response.result) {
 		throw Error(response);

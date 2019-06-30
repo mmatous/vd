@@ -2,11 +2,11 @@
 import * as AddonSettings
 	from './3rdparty/TinyWebEx/AddonSettings/AddonSettings.js';
 import {
-	NativeAppId,
+	NATIVE_APP_ID,
 	Preset,
-	RememberDownloads,
+	REMEMBER_DOWNLOADS,
 	Settings,
-	VdVerifierUrl
+	VD_VERIFIER_URL
 } from './constants.js';
 import {
 	createContextMenuChildren,
@@ -26,7 +26,7 @@ import {
 } from './parsing.js';
 import { get, notifyUser, testVerifier } from './utils.js';
 
-export const downloadList = new DownloadList(RememberDownloads, deleteContextMenu);
+export const downloadList = new DownloadList(REMEMBER_DOWNLOADS, deleteContextMenu);
 
 export function shouldBeIgnored(downloadItem) {
 	return downloadItem.url.endsWith('#vd-ignore');
@@ -49,7 +49,7 @@ export async function getDigestUrls(url) {
 export function handleInstalled() {
 	testVerifier().catch(() => {
 		const err = `vd-verifier is not functioning correctly.
-Please ensure you have the latest version from ${VdVerifierUrl}`;
+Please ensure you have the latest version from ${VD_VERIFIER_URL}`;
 		notifyUser(Preset.error, err);
 	});
 }
@@ -138,7 +138,7 @@ async function handleVerdict(verdict, filePath) {
 	}
 }
 
-async function handleResponse(response, filePath) {
+async function handleAppResponse(response, filePath) {
 	if (response.result) {
 		handleVerdict(response.result, filePath);
 	} else if (response.error) {
@@ -155,9 +155,9 @@ async function handleResponse(response, filePath) {
 async function sendToNativeApp(entry) {
 	const serialized = entry.serialize();
 	try {
-		const response = await browser.runtime.sendNativeMessage(NativeAppId, serialized);
+		const response = await browser.runtime.sendNativeMessage(NATIVE_APP_ID, serialized);
 		console.info(`native app responded: ${JSON.stringify(response, null, '\t')}`);
-		await handleResponse(response, entry.inputFile);
+		await handleAppResponse(response, entry.inputFile);
 	} catch (e) {
 		throw Error(`unable to communicate with vd application: ${e}`);
 	}

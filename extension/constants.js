@@ -6,9 +6,9 @@ export const Preset = Object.freeze({
 	authenticity: {iconUrl: 'icon/vd-authenticity.svg', title: 'Authenticity verified'}
 });
 
-export const RememberDownloads = 10;
+export const REMEMBER_DOWNLOADS = 10;
 
-export const FetchTimeoutMs = 2000;
+export const FETCH_TIMEOUT_MS = 2000;
 
 export const Settings = Object.freeze({
 	notifyError: 'notifyError',
@@ -16,6 +16,6 @@ export const Settings = Object.freeze({
 	notifySuccess: 'notifySuccess'
 });
 
-export const NativeAppId = 'io.github.vd';
+export const NATIVE_APP_ID = 'io.github.vd';
 
-export const VdVerifierUrl = 'https://github.com/mmatous/vd-verifier/releases/latest';
+export const VD_VERIFIER_URL = 'https://github.com/mmatous/vd-verifier/releases/latest';

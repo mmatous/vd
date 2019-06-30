@@ -1,4 +1,4 @@
-import { VdVerifierUrl } from '../constants.js';
+import { VD_VERIFIER_URL } from '../constants.js';
 import { getJson, testVerifier } from '../utils.js';
 
 export function setOptionName(doc, elementId, optionName) {
@@ -12,9 +12,9 @@ export async function getLatestVersion() {
 }
 
 export function downloadVerifier() {
-	browser.tabs.create({ url: VdVerifierUrl })
+	browser.tabs.create({ url: VD_VERIFIER_URL })
 		.catch(() => {
-			console.warn(`Unable to open tab at ${VdVerifierUrl}`);
+			console.warn(`Unable to open tab at ${VD_VERIFIER_URL}`);
 		});
 }
 
