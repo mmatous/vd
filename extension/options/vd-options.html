@@ -7,19 +7,16 @@
 		<script type="module" src="vd-options.js"></script>
 	</head>
 	<body>
-		<fieldset>
+		<fieldset class="setting save-on-input">
 			<legend>Notification options</legend>
-			<label>
-				<input class="setting save-on-change" id="notifyError" type="checkbox"> Notify on verification error
-			</label>
+			<input id="notifyError" type="checkbox">
+			<label for="notifyError">Notify on verification error</label>
 			<br>
-			<label>
-				<input class="setting save-on-change" id="notifyFail" type="checkbox"> Notify on verification failure
-			</label>
+			<input id="notifyFail" type="checkbox">
+			<label for="notifyFail">Notify on verification failure</label>
 			<br>
-			<label>
-				<input class="setting save-on-change" id="notifySuccess" type="checkbox"> Notify on verification success
-			</label>
+			<input id="notifySuccess" type="checkbox">
+			<label for="notifySuccess">Notify on verification success</label>
 		</fieldset>
 		<hr>
 		<fieldset>
