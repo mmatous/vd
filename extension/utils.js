@@ -18,7 +18,7 @@ export async function boundedFetch(url) {
 	const timeout = new Promise((_, reject) => {
 		setTimeout(reject, FETCH_TIMEOUT_MS, `Fetch call to ${url} timed out`);
 	});
-	return Promise.race([ fetch(url, { method: 'GET' }), timeout ]);
+	return Promise.race([ fetch(url, { method: 'GET', credentials: 'same-origin' }), timeout ]);
 }
 
 export async function get(url) {
