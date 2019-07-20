@@ -3,14 +3,15 @@ import * as AddonSettings
 import * as AutomaticSettings
 	from '../3rdparty/TinyWebEx/AutomaticSettings/AutomaticSettings.js';
 import { Settings } from '../constants.js';
-import { downloadVerifier, handleDomContentLoaded, setOptionName, testVerifierWithUiChange } from './options.js';
+import { downloadVerifier, handleDomContentLoaded, setOptionName, handleTestVerifierClick } from './options.js';
 
-setOptionName(document, 'notifyError', Settings.notifyError);
-setOptionName(document, 'notifyFail', Settings.notifyFail);
-setOptionName(document, 'notifySuccess', Settings.notifySuccess);
+setOptionName(document, 'notify-error', Settings.notifyError);
+setOptionName(document, 'notify-fail', Settings.notifyFail);
+setOptionName(document, 'notify-success', Settings.notifySuccess);
+setOptionName(document, 'regex-list', Settings.regexList);
 
 document.getElementById('downloadVerifier').addEventListener('click', downloadVerifier);
-document.getElementById('testVerifier').addEventListener('click', testVerifierWithUiChange);
+document.getElementById('testVerifier').addEventListener('click', handleTestVerifierClick);
 
 window.addEventListener('DOMContentLoaded', handleDomContentLoaded);
 
