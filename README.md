@@ -33,11 +33,11 @@ User feedback is provided via notifications. You can also consult browser consol
 
 - Verify most common digest files automatically (e.g. sha1sums or .md5 suffixes)
 - Manually assign digest to downloaded file
+- User-defined lists for searching
+- Context menu for manualy pairing digest/signature with download
 
 #### Planned
 - Verify signatures
-- User-defined lists for searching
-- ~~Context menu for manualy pairing digest/signature with download~~  Done
 - Nicer logo!
 - Localization & accessibility improvements
 
