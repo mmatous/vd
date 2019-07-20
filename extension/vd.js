@@ -195,6 +195,7 @@ async function handleDownloadInterrupted(delta) {
 	}
 	const entry = downloadList.getByAnyId(delta.id);
 	await cleanup(entry);
+	deleteContextMenu(entry.id);
 }
 
 export function handleDownloadChanged(delta) {
