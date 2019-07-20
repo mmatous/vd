@@ -78,7 +78,7 @@ export class DownloadListItem {
 		this.digestId = undefined;
 		this.digestFile = undefined;
 		this.digestHex = undefined;
-		this.digestState = DownloadState.downloading;
+		this.digestState = DownloadState.unknown;
 		this.id = downloadItem.id;
 		this.inputFile = downloadItem.filename; //is absolute path
 		this.inputFileState = DownloadState.downloading;
