@@ -170,7 +170,6 @@ async function handleDownloadFinished(delta) {
 	}
 	entry.markDownloaded(delta.id);
 	await sendIfReady(entry);
-	await cleanup(entry);
 }
 
 export async function sendIfReady(entry) {
@@ -182,6 +181,7 @@ export async function sendIfReady(entry) {
 	} catch (e) {
 		await handleError(e, entry);
 	}
+	await cleanup(entry);
 }
 
 async function handleDownloadInterrupted(delta) {
