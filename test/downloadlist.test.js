@@ -28,7 +28,7 @@ const testDigestItem1 = {
 	filename: '/a/digest'
 };
 
-const downloadListItem1 = {
+const downloadListItemInitial = {
 	digestFile: undefined,
 	digestHex: undefined,
 	digestId: undefined,
@@ -39,11 +39,11 @@ const downloadListItem1 = {
 	originalFilename: 'f.ext',
 };
 
-const downloadListItem2 = {
+const downloadListItemWithDigest = {
 	digestFile: '/a/digest',
 	digestHex: undefined,
 	digestId: 2,
-	digestState: DownloadState.unknown,
+	digestState: DownloadState.downloading,
 	id: 1,
 	inputFile: '/a/file',
 	inputFileState: DownloadState.downloading,
@@ -55,7 +55,7 @@ test('DownloadList can save & retrieve entry', () => {
 
 	list.createEntry(testDownloadItem1);
 	const retrieved = list.getByDownloadId(testDownloadItem1.id);
-	expect(retrieved).toEqual(downloadListItem1);
+	expect(retrieved).toEqual(downloadListItemInitial);
 });
 
 test('Fresh DownloadList is empty', () => {
@@ -82,7 +82,7 @@ test('getByDigestId() retrieves correct entry', () => {
 	res.setDigestFile(testDigestItem1);
 
 	const digestParent = list.getByDigestId(testDigestItem1.id);
-	expect(digestParent).toEqual(downloadListItem2);
+	expect(digestParent).toEqual(downloadListItemWithDigest);
 });
 
 test('getByAnyId() retrieves correct entry', () => {
@@ -199,9 +199,9 @@ test('serialize() returns object for consumption by vd-verifier (digestFile)', (
 	const entry = new DownloadListItem(testDownloadItem1);
 	const res = entry.serialize();
 
-	expect(res['original-filename']).toEqual(downloadListItem1.originalFilename);
-	expect(res['input-file']).toEqual(downloadListItem1.inputFile);
-	expect(res['digest-file']).toEqual(downloadListItem1.digestFile);
+	expect(res['original-filename']).toEqual(downloadListItemInitial.originalFilename);
+	expect(res['input-file']).toEqual(downloadListItemInitial.inputFile);
+	expect(res['digest-file']).toEqual(downloadListItemInitial.digestFile);
 	expect(Object.keys(res).length).toEqual(3);
 });
 
@@ -211,8 +211,8 @@ test('serialize() returns object for consumption by vd-verifier (hexStr digest)'
 	entry.setDigest(hex);
 	const res = entry.serialize();
 
-	expect(res['original-filename']).toEqual(downloadListItem1.originalFilename);
-	expect(res['input-file']).toEqual(downloadListItem1.inputFile);
+	expect(res['original-filename']).toEqual(downloadListItemInitial.originalFilename);
+	expect(res['input-file']).toEqual(downloadListItemInitial.inputFile);
 	expect(res['digest-file']).toBe(undefined);
 	expect(res['digest-direct']).toEqual(hex);
 	expect(Object.keys(res).length).toEqual(3);

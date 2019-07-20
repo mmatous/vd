@@ -24,7 +24,7 @@ import {
 	matchFileSumsLinks,
 	matchAgregatedSumsLinks
 } from './parsing.js';
-import { get, notifyUser, testVerifier } from './utils.js';
+import { get, notifyUser, testVerifier, toRaw } from './utils.js';
 
 export const downloadList = new DownloadList(REMEMBER_DOWNLOADS, deleteContextMenu);
 
@@ -37,7 +37,46 @@ export function shouldBeIgnored(downloadItem) {
 	*/
 }
 
-export async function getDigestUrls(url) {
+export async function matchFromList(url, list) {
+	const pairings = list.split('\n');
+	for (let pairing of pairings) {
+		const p = pairing.split(' || ', 2);
+		const raw = toRaw(p[0]);
+		const re = new RegExp(raw);
+		const matches = re.exec(url.href);
+		if (matches) {
+			// start from 1, matches[0] is the full match
+			for (let group = 1; group < matches.length; group++) {
+				const match = matches[group];
+				const replaceRe = String.raw`\$\|${group}\|`;
+				p[1] = p[1].replace(new RegExp(replaceRe, 'g'), match);
+			}
+			return p[1];
+		}
+	}
+	return null;
+}
+
+async function regexListLookup(url) {
+	try {
+		const regexList = await AddonSettings.get(Settings.regexList);
+		const lookup = await matchFromList(url, regexList);
+		if (lookup) {
+			return [ new URL(lookup) ];
+		}
+	} catch (err) {
+		console.error(`regex list lookup failed: ${err}`);
+	}
+	return null;
+}
+
+export async function getDigestUrls(url, useRegexList = true) {
+	if (useRegexList) {
+		const lookup = await regexListLookup(url);
+		if (lookup) {
+			return lookup;
+		}
+	}
 	const filename = getFilename(url.href);
 	const fileDir = getFileDirUrl(url.href);
 	const responseText = await get(fileDir);
@@ -72,7 +111,7 @@ export async function downloadDigestForEntry(entry, digestUrl) {
 }
 
 async function autodetectDigest(originalUrl, entry) {
-	const digestUrls = await getDigestUrls(originalUrl);
+	const digestUrls = await getDigestUrls(originalUrl, true); // todo: load from settings
 	const digest = selectDigest(digestUrls);
 	if (!digest) {
 		console.info(`No viable digest found for ${entry.inputFile} (${entry.id})`);
@@ -159,7 +198,7 @@ async function sendToNativeApp(entry) {
 		console.info(`native app responded: ${JSON.stringify(response, null, '\t')}`);
 		await handleAppResponse(response, entry.inputFile);
 	} catch (e) {
-		throw Error(`unable to communicate with vd application: ${e}`);
+		throw Error(`error communicating with vd-verifier: ${e}`);
 	}
 }
 

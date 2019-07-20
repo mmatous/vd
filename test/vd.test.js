@@ -1,8 +1,8 @@
 'use strict';
 
 import * as browser from 'sinon-chrome/webextensions';
-
 import fetch from 'jest-fetch-mock';
+
 import {
 	cleanup,
 	createListEntry,
@@ -10,10 +10,12 @@ import {
 	downloadList,
 	getDigestUrls,
 	handleDownloadCreated,
+	matchFromList,
 	selectDigest,
 	shouldBeIgnored
 } from '../extension/vd.js';
 import { DownloadState } from '../extension/downloadlist.js';
+
 
 jest.useFakeTimers();
 
@@ -123,7 +125,7 @@ test('getDigestUrls() return a list of digest urls', async () => {
 	`;
 	fetch.mockResponseOnce(response);
 
-	const res = await getDigestUrls(new URL('https://host.io/path/verifiable.file'));
+	const res = await getDigestUrls(new URL('https://host.io/path/verifiable.file'), false);
 	expect(res).toEqual([new URL('https://host.io/path/verifiable.file.sha1')]);
 });
 
@@ -224,4 +226,34 @@ test('handleDownloadCreated() returns undefined if digest download fails', async
 		{ id: 0, url: 'https://host.io/path/verifiable.file', filename: '/path/verifiable.file' }
 	);
 	expect(res).toEqual(undefined);
+});
+
+test('matchFromList() returns value matching regex key', async () => {
+	const url = new URL('https://host.io/');
+	const list = String.raw`^irrelevantKey || irrelevantValue`
+					+ '\n'
+					+ String.raw`^https://host.io/ || value`;
+
+	const res = await matchFromList(url, list);
+	expect(res).toEqual('value');
+});
+
+test('matchFromList() returns value with replaced parts', async () => {
+	const rStr = String.raw`^https://download.fedoraproject.org/pub/fedora/linux/releases/(\d{2})/(\w*)/(\w[\d_]*)/iso/.*-(\d\.\d).iso`;
+	let downloadUrl = 'https://download.fedoraproject.org/pub/fedora/linux/releases/30/Workstation/x86_64/iso/Fedora-Workstation-Live-x86_64-30-1.2.iso';
+	downloadUrl = new URL(downloadUrl);
+	const list = String.raw`^irrelevantKey || irrelevantValue`
+					+ '\n'
+					+ `${rStr} || https://getfedora.org/static/checksums/Fedora-$|2|-$|1|-$|4|-$|3|-CHECKSUM`;
+
+	const res = await matchFromList(downloadUrl, list);
+	expect(res).toEqual('https://getfedora.org/static/checksums/Fedora-Workstation-30-1.2-x86_64-CHECKSUM');
+});
+
+test('matchFromList() returns null if no regex matches URL', async () => {
+	const url = new URL('nhttps://host.io/');
+	const list = '^https://host.io/ || value';
+
+	const res = await matchFromList(url, list);
+	expect(res).toEqual(null);
 });

@@ -63,3 +63,22 @@ export async function testVerifier() {
 		return response.result;
 	}
 }
+
+export function toRaw(str) {
+	const charMappings = {
+		'.': String.raw`\.`,
+		'b': String.raw`\b`,
+		'B': String.raw`\B`,
+		'd': String.raw`\d`,
+		'D': String.raw`\D`,
+		'n': String.raw`\n`,
+		's': String.raw`\s`,
+		'S': String.raw`\S`,
+		't': String.raw`\t`,
+		'w': String.raw`\w`,
+	};
+	const raw = String.raw`${str}`;
+	return raw.replace(/\\(.)/g, (str, char) => {
+		return charMappings[char];
+	});
+}

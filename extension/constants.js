@@ -11,9 +11,11 @@ export const REMEMBER_DOWNLOADS = 10;
 export const FETCH_TIMEOUT_MS = 2000;
 
 export const Settings = Object.freeze({
-	notifyError: 'notifyError',
-	notifyFail: 'notifyFail',
-	notifySuccess: 'notifySuccess'
+	notifyError: 'notify-error',
+	notifyFail: 'notify-fail',
+	notifySuccess: 'notify-success',
+
+	regexList: 'regex-list'
 });
 
 export const NATIVE_APP_ID = 'io.github.vd';

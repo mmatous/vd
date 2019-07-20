@@ -18,7 +18,7 @@ export function downloadVerifier() {
 		});
 }
 
-export function testVerifierWithUiChange() {
+export function handleTestVerifier() {
 	testVerifier().then((version) => {
 		document.getElementById('testResult').value = `Setup OK, version: ${version}`;
 	}).catch((err) => {
@@ -30,7 +30,7 @@ export function testVerifierWithUiChange() {
 }
 
 export function handleDomContentLoaded() {
-	testVerifierWithUiChange();
+	handleTestVerifier();	// act as if user pressed the test button
 
 	getLatestVersion().then((result) => {
 		document.getElementById('latestVersion').value = `Latest version: ${result}`;
