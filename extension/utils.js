@@ -3,14 +3,14 @@
 import { FETCH_TIMEOUT_MS, NATIVE_APP_ID } from './constants.js';
 
 export function isDigestString(hexStr) {
-	if (hexStr.length < 2 * (128 / 8)) { // at least md5, sha1... hex-encoded
+	if (hexStr.length < 2 * (160 / 8)) { // at least sha1, sha256... hex-encoded
 		return false;
 	}
 	if (hexStr.length > 2 * (512 / 8)) { // at most sha512, whirlpool... hex-encoded
 		return false;
 	}
 	// constains only hex chars from start to end, even number of characters
-	const res = /^(?:[0-9A-Fa-f]{2})+$/.test(hexStr);
+	const res = /^(?:[0-9A-Fa-f]{2})+$/.test(hexStr); // /^(?:[0-9A-Fa-f]{2}){160 / 8, 512 / 8}$/
 	return res;
 }
 

@@ -59,12 +59,12 @@ function matchLinks(pattern, urls) {
 
 export function matchFileSumsLinks(filename, urls) {
 	const fileSumsRe = '^' + filename
-		+ '(?:.sha(?:512|256|1)|.md5|.digests|.hash.txt)(?!.asc|.pgp|.sig|.sign)$';
+		+ '(?:.sha(?:512|256|1)|.digests|.hash.txt)(?!.asc|.pgp|.sig|.sign)$';
 	const re = new RegExp(fileSumsRe, 'i');
 	return matchLinks(re, urls);
 }
 
 export function matchAgregatedSumsLinks(urls) {
-	const agregatedSumsRe = /^(?:sha(?:512|256|1)|md5)sum(?!.*.asc|.*.pgp|.*.sig|.*.sign)/i;
+	const agregatedSumsRe = /^(?:sha(?:512|256|1))sum(?!.*.asc|.*.pgp|.*.sig|.*.sign)/i;
 	return matchLinks(agregatedSumsRe, urls);
 }

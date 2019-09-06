@@ -60,11 +60,11 @@ beforeEach(() => {
 
 test('selectDigest() returns first available option if possible', () => {
 	expect(selectDigest(
-		[	'https://host.io/path/md5sums',
+		[	'https://host.io/path/sha512sums.txt',
 			'https://host.io/sha512sums.txt',
 			'https://host.io/notadigest.html'
 		]))
-		.toEqual('https://host.io/path/md5sums');
+		.toEqual('https://host.io/path/sha512sums.txt');
 });
 
 test('selectDigest() returns undefined if no option available', () => {

@@ -57,16 +57,19 @@ test('getSameOriginLinks() extracts link for given host from html document', () 
 	]);
 });
 
-test('matchAgregatedSumsLinks()', () => {
+test('matchAgregatedSumsLinks() returns all URLs containing digests file', () => {
 	expect(matchAgregatedSumsLinks([
 		new URL('https://host.io/path/sha1SUM.txt'), new URL('https://host.io/path/link2.sh'),
-		new URL('https://path/md5sums'), new URL('https://path/md5sums.asc')
+		new URL('https://path/md5sums'), new URL('https://path/md5sums.asc'),
+		new URL('https://path/sha512sums'), new URL('https://host.io/sha512sums')
 	])).toEqual([
-		new URL('https://host.io/path/sha1SUM.txt'), new URL('https://path/md5sums')
+		new URL('https://host.io/path/sha1SUM.txt'),
+		new URL('https://host.io/sha512sums'),
+		new URL('https://path/sha512sums'),
 	]);
 });
 
-test('matchFileSumsLinks()', () => {
+test('matchFileSumsLinks() returns any URLs containing digest file', () => {
 	expect(matchFileSumsLinks('file.name', [
 		new URL('https://host.io/file.name.DIGESTS'), new URL('https://host.io/file.name.hash.txt'),
 		new URL('https://host.io/file.name.gpg'), new URL('https://host.io/file.name.sha512'),

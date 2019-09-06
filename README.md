@@ -31,7 +31,7 @@ User feedback is provided via notifications. You can also consult browser consol
 
 ### Features
 
-- Verify most common digest files automatically (e.g. sha1sums or .md5 suffixes)
+- Verify most common digest files automatically (e.g. sha1sums or .sha256 suffixes)
 - Manually assign digest to downloaded file
 - User-defined lists for searching
 - Context menu for manualy pairing digest/signature with download
