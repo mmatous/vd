@@ -1,4 +1,4 @@
-import { VD_VERIFIER_URL } from '../constants.js';
+import { VD_VERIFIER_API_URL, VD_VERIFIER_URL } from '../constants.js';
 import { getJson, testVerifier } from '../utils.js';
 
 export function setOptionName(doc, elementId, optionName) {
@@ -6,8 +6,7 @@ export function setOptionName(doc, elementId, optionName) {
 }
 
 export async function getLatestVersion() {
-	const apiUrl = 'https://api.github.com/repos/mmatous/vd-verifier/releases/latest';
-	const response = await getJson(apiUrl);
+	const response = await getJson(VD_VERIFIER_API_URL);
 	return response.tag_name;
 }
 
@@ -22,7 +21,7 @@ export function handleTestVerifierClick() {
 	testVerifier().then((version) => {
 		document.getElementById('testResult').value = `Setup OK, version: ${version}`;
 	}).catch((err) => {
-		console.error(`vd-verifier ${err}`);
+		console.error(`vd-verifier responded: ${err}`);
 		const errResponse = `Something went wrong.
 			Please ensure you have the latest version of vd-verifier installed correctly.`;
 		document.getElementById('testResult').value = errResponse;

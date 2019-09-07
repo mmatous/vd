@@ -1,19 +1,19 @@
-import * as AddonSettings
+import * as addonSettings
 	from '../3rdparty/TinyWebEx/AddonSettings/AddonSettings.js';
-import * as AutomaticSettings
+import * as automaticSettings
 	from '../3rdparty/TinyWebEx/AutomaticSettings/AutomaticSettings.js';
 import { Settings } from '../constants.js';
-import { downloadVerifier, handleDomContentLoaded, setOptionName, handleTestVerifierClick } from './options.js';
+import * as options from './options.js';
 
-setOptionName(document, 'notify-error', Settings.notifyError);
-setOptionName(document, 'notify-fail', Settings.notifyFail);
-setOptionName(document, 'notify-success', Settings.notifySuccess);
-setOptionName(document, 'regex-list', Settings.regexList);
+options.setOptionName(document, 'notify-error', Settings.notifyError);
+options.setOptionName(document, 'notify-fail', Settings.notifyFail);
+options.setOptionName(document, 'notify-success', Settings.notifySuccess);
+options.setOptionName(document, 'regex-list', Settings.regexList);
 
-document.getElementById('downloadVerifier').addEventListener('click', downloadVerifier);
-document.getElementById('testVerifier').addEventListener('click', handleTestVerifierClick);
+document.getElementById('downloadVerifier').addEventListener('click', options.downloadVerifier);
+document.getElementById('testVerifier').addEventListener('click', options.handleTestVerifierClick);
 
-window.addEventListener('DOMContentLoaded', handleDomContentLoaded);
+window.addEventListener('DOMContentLoaded', options.handleDomContentLoaded);
 
-AutomaticSettings.setDefaultOptionProvider(AddonSettings.getDefaultValue);
-AutomaticSettings.init();
+automaticSettings.setDefaultOptionProvider(addonSettings.getDefaultValue);
+automaticSettings.init();

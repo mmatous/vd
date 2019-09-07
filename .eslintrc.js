@@ -2,8 +2,6 @@ module.exports = {
 	'env': {
 		'browser': true,
 		'es6': true,
-		'jest': true,
-		'node': true,
 		"webextensions": true
 	},
 	'extends': 'eslint:recommended',
@@ -32,5 +30,16 @@ module.exports = {
 			'error',
 			'always'
 		]
-	}
+	},
+
+	"overrides": [
+		{
+		  "files": ["test/*.js"],
+		  "env": {
+			'es6': true,
+			'jest': true,
+			'node': true
+		  }
+		}
+	  ]
 };

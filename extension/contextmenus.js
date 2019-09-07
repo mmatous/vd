@@ -34,9 +34,9 @@ export async function handleMenuClicked(info) {
 
 function onMenuCreated() {
 	if (browser.runtime.lastError) {
-		console.warn(`error creating menu item: ${browser.runtime.lastError}`);
+		console.warn(`Error creating menu item: ${browser.runtime.lastError}`);
 	} else {
-		console.info('menu item created successfully');
+		console.info('Menu item created successfully');
 	}
 }
 
@@ -54,11 +54,11 @@ export function createContextMenuParents() {
 	}, onMenuCreated);
 }
 
-export function createContextMenuChildren(downloadItem) {
-	const filename = getFilename(downloadItem.filename);
-	const fileDir = getFileDir(downloadItem.filename);
+export function createContextMenuChildren(downloadId, downloadPath) {
+	const filename = getFilename(downloadPath);
+	const fileDir = getFileDir(downloadPath);
 
-	const selectionChildId = `${MenuType.selection}-${downloadItem.id}`;
+	const selectionChildId = `${MenuType.selection}-${downloadId}`;
 	browser.menus.create({
 		contexts: ['selection'],
 		id: selectionChildId,
@@ -66,7 +66,7 @@ export function createContextMenuChildren(downloadItem) {
 		title: `${filename} @ ${fileDir}`
 	}, onMenuCreated);
 
-	const linkChildId = `${MenuType.link}-${downloadItem.id}`;
+	const linkChildId = `${MenuType.link}-${downloadId}`;
 	browser.menus.create({
 		contexts: ['link'],
 		id: linkChildId,
@@ -77,10 +77,10 @@ export function createContextMenuChildren(downloadItem) {
 
 export function deleteContextMenu(downloadItemId) {
 	browser.menus.remove(`${MenuType.selection}-${downloadItemId}`)
-		.then(() => { console.info(`deleted selection menu entry for ${downloadItemId}`); })
-		.catch(() => { console.warn(`unable to delete selection menu entry for ${downloadItemId}`); });
+		.then(() => { console.info(`Deleted selection menu entry for ${downloadItemId}`); })
+		.catch(() => { console.warn(`Unable to delete selection menu entry for ${downloadItemId}`); });
 
 	browser.menus.remove(`${MenuType.link}-${downloadItemId}`)
-		.then(() => { console.info(`deleted link menu entry for ${downloadItemId}`); })
-		.catch(() => { console.warn(`unable to delete link menu entry for ${downloadItemId}`); });
+		.then(() => { console.info(`Deleted link menu entry for ${downloadItemId}`); })
+		.catch(() => { console.warn(`Unable to delete link menu entry for ${downloadItemId}`); });
 }

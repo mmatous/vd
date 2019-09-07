@@ -9,9 +9,6 @@ export const DownloadState = Object.freeze(
 );
 
 export class DownloadList {
-	// #capacity; todo: switch to private fields eventually
-	// #regularDownloads;
-	// #digestPairings;
 
 	constructor(capacity, deleteItemCb) {
 		this.capacity = capacity;
@@ -75,9 +72,9 @@ export class DownloadList {
 export class DownloadListItem {
 
 	constructor(downloadItem) {
-		this.digestId = undefined;
-		this.digestFile = undefined;
-		this.digestHex = undefined;
+		this.digestId = null;
+		this.digestFile = null;
+		this.digestHex = null;
 		this.digestState = DownloadState.unknown;
 		this.id = downloadItem.id;
 		this.inputFile = downloadItem.filename; //is absolute path
@@ -92,7 +89,7 @@ export class DownloadListItem {
 
 	fileDownloadedDigestManual() {
 		return this.inputFileState === DownloadState.downloaded
-			&& this.digestHex !== undefined;
+			&& this.digestHex !== null;
 	}
 
 	readyForVerification() {
@@ -128,16 +125,16 @@ export class DownloadListItem {
 			notifyUser(Preset.error, line);
 			return false;
 		}
-		this.digestFile = undefined;
+		this.digestFile = null;
 		this.digestHex = hexString;
-		this.digestId = undefined;
+		this.digestId = null;
 		this.digestState = DownloadState.assignedManually;
 		return true;
 	}
 
 	setDigestFile(digestDownloadItem) {
 		this.digestFile = digestDownloadItem.filename;
-		this.digestHex = undefined;
+		this.digestHex = null;
 		this.digestId = digestDownloadItem.id;
 		this.digestState = DownloadState.downloading;
 		return true;

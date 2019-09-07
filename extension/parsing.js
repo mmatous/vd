@@ -12,7 +12,7 @@ export function getFileDir(filePath) {
 	return filePath.slice(0, lastSlash);
 }
 
-export function getFileDirUrl(href) {
+export function getDirListingUrl(href) {
 	const dir = getFileDir(href);
 	return new URL(dir);
 }
@@ -52,7 +52,9 @@ export function getSameOriginLinks(htmlString, fileDir) {
 function matchLinks(pattern, urls) {
 	const matched = [];
 	for (let link of urls) {
-		pattern.test(getFilename(link.href)) ?  matched.push(link) : 0;
+		if (pattern.test(getFilename(link.href))) {
+			matched.push(link);
+		}
 	}
 	return matched;
 }

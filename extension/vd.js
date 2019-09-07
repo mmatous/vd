@@ -1,32 +1,16 @@
 'use strict';
-import * as AddonSettings
+import * as addonSettings
 	from './3rdparty/TinyWebEx/AddonSettings/AddonSettings.js';
-import {
-	NATIVE_APP_ID,
-	Preset,
-	REMEMBER_DOWNLOADS,
-	Settings,
-	VD_VERIFIER_URL
-} from './constants.js';
-import {
-	createContextMenuChildren,
-	createContextMenuParents,
-	deleteContextMenu
-} from './contextmenus.js';
+import * as constants from './constants.js';
+import * as ctxMenus from './contextmenus.js';
 import {
 	DownloadList,
 	DownloadState
 } from './downloadlist.js';
-import {
-	getFilename,
-	getFileDirUrl,
-	getSameOriginLinks,
-	matchFileSumsLinks,
-	matchAgregatedSumsLinks
-} from './parsing.js';
-import { get, notifyUser, testVerifier, toRaw } from './utils.js';
+import * as parsing from './parsing.js';
+import * as utils from './utils.js';
 
-export const downloadList = new DownloadList(REMEMBER_DOWNLOADS, deleteContextMenu);
+export const downloadList = new DownloadList(constants.REMEMBER_DOWNLOADS, ctxMenus.deleteContextMenu);
 
 export function shouldBeIgnored(downloadItem) {
 	return downloadItem.url.endsWith('#vd-ignore');
@@ -41,7 +25,7 @@ export async function matchFromList(url, list) {
 	const pairings = list.split('\n');
 	for (let pairing of pairings) {
 		const p = pairing.split(' || ', 2);
-		const raw = toRaw(p[0]);
+		const raw = utils.toRaw(p[0]);
 		const re = new RegExp(raw);
 		const matches = re.exec(url.href);
 		if (matches) {
@@ -59,37 +43,37 @@ export async function matchFromList(url, list) {
 
 async function regexListLookup(url) {
 	try {
-		const regexList = await AddonSettings.get(Settings.regexList);
+		const regexList = await addonSettings.get(constants.Settings.regexList);
 		const lookup = await matchFromList(url, regexList);
 		if (lookup) {
 			return [ new URL(lookup) ];
 		}
 	} catch (err) {
-		console.error(`regex list lookup failed: ${err}`);
+		console.error(`Regex list lookup error: ${err}`);
 	}
 	return null;
 }
 
-export async function getDigestUrls(url, useRegexList = true) {
+export async function getDigestUrls(fileUrl, useRegexList = true) {
 	if (useRegexList) {
-		const lookup = await regexListLookup(url);
+		const lookup = await regexListLookup(fileUrl);
 		if (lookup) {
 			return lookup;
 		}
 	}
-	const filename = getFilename(url.href);
-	const fileDir = getFileDirUrl(url.href);
-	const responseText = await get(fileDir);
-	const urls = getSameOriginLinks(responseText, fileDir);
-	const singleFileSums = matchFileSumsLinks(filename, urls);
-	return singleFileSums.length != 0 ? singleFileSums : matchAgregatedSumsLinks(urls);
+	const filename = parsing.getFilename(fileUrl.href);
+	const fileDir = parsing.getDirListingUrl(fileUrl.href);
+	const responseText = await utils.get(fileDir);
+	const urls = parsing.getSameOriginLinks(responseText, fileDir);
+	const singleFileSums = parsing.matchFileSumsLinks(filename, urls);
+	return singleFileSums.length != 0 ? singleFileSums : parsing.matchAgregatedSumsLinks(urls);
 }
 
 export function handleInstalled() {
-	testVerifier().catch(() => {
-		const err = `vd-verifier is not functioning correctly.
-Please ensure you have the latest version from ${VD_VERIFIER_URL}`;
-		notifyUser(Preset.error, err);
+	utils.testVerifier().catch(() => {
+		const err = `vd-verifier is not working correctly.
+Please ensure you have the latest version from ${constants.VD_VERIFIER_URL}`;
+		utils.notifyUser(constants.Preset.error, err);
 	});
 }
 
@@ -99,9 +83,9 @@ export function selectDigest(digests) {
 
 export function createListEntry(downloadItem) {
 	if (downloadList.empty()) {
-		createContextMenuParents();
+		ctxMenus.createContextMenuParents();
 	}
-	createContextMenuChildren(downloadItem);
+	ctxMenus.createContextMenuChildren(downloadItem.id, downloadItem.filename);
 	return downloadList.createEntry(downloadItem);
 }
 
@@ -150,7 +134,7 @@ export async function downloadDigest(url) {
 async function handleError(err, entry) {
 	console.error(`${err}`);
 	await cleanup(entry);
-	await notifyUser(Preset.error, err);
+	await utils.notifyUser(constants.Preset.error, err);
 }
 
 async function handleVerdict(verdict, filePath) {
@@ -158,33 +142,33 @@ async function handleVerdict(verdict, filePath) {
 	let shouldNotify;
 	switch (verdict) {
 	case 'i':
-		console.info(`integrity verified - ${filePath}`);
-		notifyPreset = Preset.integrity;
-		shouldNotify = await AddonSettings.get(Settings.notifySuccess);
+		console.info(`Integrity verified - ${filePath}`);
+		notifyPreset = constants.Preset.integrity;
+		shouldNotify = await addonSettings.get(constants.Settings.notifySuccess);
 		break;
 	case 'a':
-		console.info(`authenticity verified - ${filePath}`);
-		notifyPreset = Preset.authenticity;
-		shouldNotify = await AddonSettings.get(Settings.notifySuccess);
+		console.info(`Authenticity verified - ${filePath}`);
+		notifyPreset = constants.Preset.authenticity;
+		shouldNotify = await addonSettings.get(constants.Settings.notifySuccess);
 		break;
 	default:
-		console.info(`verification failed - ${filePath}`);
-		notifyPreset = Preset.fail;
-		shouldNotify = await AddonSettings.get(Settings.notifyFail);
+		console.info(`Verification failed - ${filePath}`);
+		notifyPreset = constants.Preset.fail;
+		shouldNotify = await addonSettings.get(constants.Settings.notifyFail);
 	}
 	if (shouldNotify) {
-		await notifyUser(notifyPreset, filePath);
+		await utils.notifyUser(notifyPreset, filePath);
 	}
 }
 
-async function handleAppResponse(response, filePath) {
+export async function handleAppResponse(response, filePath) {
 	if (response.result) {
 		handleVerdict(response.result, filePath);
 	} else if (response.error) {
 		console.error(response.error);
-		const shouldNotify = await AddonSettings.get(Settings.notifyError);
+		const shouldNotify = await addonSettings.get(constants.Settings.notifyError);
 		if (shouldNotify) {
-			await notifyUser(Preset.error, `${response.error}: ${filePath}`);
+			await utils.notifyUser(constants.Preset.error, `${response.error}: ${filePath}`);
 		}
 	} else {
 		throw Error(`invalid response ${JSON.stringify(response)}`);
@@ -194,8 +178,8 @@ async function handleAppResponse(response, filePath) {
 async function sendToNativeApp(entry) {
 	const serialized = entry.serialize();
 	try {
-		const response = await browser.runtime.sendNativeMessage(NATIVE_APP_ID, serialized);
-		console.info(`native app responded: ${JSON.stringify(response, null, '\t')}`);
+		const response = await browser.runtime.sendNativeMessage(constants.NATIVE_APP_ID, serialized);
+		console.info(`Native app responded: ${JSON.stringify(response, null, '\t')}`);
 		await handleAppResponse(response, entry.inputFile);
 	} catch (e) {
 		throw Error(`error communicating with vd-verifier: ${e}`);
@@ -225,16 +209,16 @@ export async function sendIfReady(entry) {
 
 async function handleDownloadInterrupted(delta) {
 	if (downloadList.hasDigest(delta.id)) {
-		console.warn(`digest download ${delta.id} interrupted, deleting entries`);
+		console.warn(`Digest download ${delta.id} interrupted, deleting entries`);
 	} else if (downloadList.hasRegularDownload(delta.id)) {
-		console.warn(`download ${delta.id} interrupted, deleting entries`);
+		console.warn(`Download ${delta.id} interrupted, deleting entries`);
 	} else {
-		console.warn(`unrecorded download (${delta.id}) interrupted`);
+		console.warn(`Unrecorded download (${delta.id}) interrupted`);
 		return;
 	}
 	const entry = downloadList.getByAnyId(delta.id);
 	await cleanup(entry);
-	deleteContextMenu(entry.id);
+	ctxMenus.deleteContextMenu(entry.id);
 }
 
 export function handleDownloadChanged(delta) {
@@ -248,14 +232,14 @@ export function handleDownloadChanged(delta) {
 export async function cleanup(entry) {
 	if (entry.digestState === DownloadState.downloaded) {
 		browser.downloads.removeFile(entry.digestId)
-			.catch(error => console.warn(`unable to remove file: ${error}`));
+			.catch(error => console.warn(`Unable to remove file: ${error}`));
 	} else if (entry.digestState === DownloadState.downloading) {
 		browser.downloads.cancel(entry.digestId)
-			.catch(error => console.warn(`unable to cancel download: ${error}`));
+			.catch(error => console.warn(`Unable to cancel download: ${error}`));
 	}
 	if (entry.digestId) {
 		browser.downloads.erase({id: entry.digestId})
-			.catch(error => console.warn(`unable to remove from downloads: ${error}`));
+			.catch(error => console.warn(`Unable to remove from downloads: ${error}`));
 	}
 	// do not delete entry from downloadList, it will be dropped when capacity overflows
 }
