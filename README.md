@@ -1,6 +1,8 @@
 # vd
 
-[![GitHub](https://img.shields.io/github/license/mmatous/vd.svg?style=plastic)](https://github.com/mmatous/vd/blob/master/LICENSE)
+![GitHub](https://img.shields.io/github/license/mmatous/vd?color=blue&style=plastic)
+[![Build Status](https://travis-ci.com/mmatous/vd.svg?branch=master)](https://travis-ci.com/mmatous/vd)
+[![codecov](https://codecov.io/gh/mmatous/vd/branch/master/graph/badge.svg)](https://codecov.io/gh/mmatous/vd)
 [![Mozilla Add-on](https://img.shields.io/amo/v/vdownloads.svg?style=plastic)](https://addons.mozilla.org/en-US/firefox/addon/vdownloads/)
 [![Crypto](https://img.shields.io/badge/donate-crypto-blue.svg?style=plastic)](https://github.com/mmatous/vd/wiki/Donate)
 
@@ -57,10 +59,16 @@ storage—settings persistence
 
 ## Build
 
-On (almost) any OS call following in project directory:
 ```
 yarn install
 yarn build
+```
+
+## Test
+
+```
+yarn lint
+yarn test
 ```
 
 ## Install

@@ -1,0 +1,13 @@
+dist: bionic
+language: node_js
+node_js:
+  node
+
+install:
+  - yarn global add codecov
+  - yarn install
+
+script:
+  - yarn lint
+  - yarn test
+  - codecov
