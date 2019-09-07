@@ -5,6 +5,10 @@ import fetch from 'jest-fetch-mock';
 
 import * as vd from '../extension/vd.js';
 import * as helpers from './helpers.js';
+import {
+	get
+} from '../extension/3rdparty/TinyWebEx/AddonSettings/AddonSettings.js';
+jest.mock('../extension/3rdparty/TinyWebEx/AddonSettings/AddonSettings.js');
 
 jest.useFakeTimers();
 
@@ -151,10 +155,50 @@ test('matchFromList() returns null if no regex matches URL', async () => {
 	expect(res).toEqual(null);
 });
 
-test('matchFromList() returns null if no regex matches URL', async () => {
-	const url = new URL('nhttps://host.io/');
-	const list = '^https://host.io/ || value';
+test('handleAppResponse() results in success notification if integrity passes', async () => {
+	get.mockResolvedValue(true);
+	browser.notifications.create.returns(Promise.resolve(true));
+	const appResponse = {result: 'i'};
 
-	const res = await vd.matchFromList(url, list);
-	expect(res).toEqual(null);
+	await vd.handleAppResponse(appResponse, 'testedFile');
+	expect(browser.notifications.create.callCount).toBe(1);
+	expect(browser.notifications.create.args[0][0]).toEqual(
+		{
+			message: 'testedFile',
+			title: '✅ Integrity verified',
+			type: 'basic'
+		}
+	);
+});
+
+test('handleAppResponse() results in failure notification if verification fails', async () => {
+	get.mockResolvedValue(true);
+	browser.notifications.create.returns(Promise.resolve(true));
+	const appResponse = {result: 'f'};
+
+	await vd.handleAppResponse(appResponse, 'testedFile');
+	expect(browser.notifications.create.callCount).toBe(1);
+	expect(browser.notifications.create.args[0][0]).toEqual(
+		{
+			message: 'testedFile',
+			title: '❌ Verification failed',
+			type: 'basic'
+		}
+	);
+});
+
+test('handleAppResponse() results in error notification if an error occurs', async () => {
+	get.mockResolvedValue(true);
+	browser.notifications.create.returns(Promise.resolve(true));
+	const appResponse = {error: 'Test error occured'};
+
+	await vd.handleAppResponse(appResponse, 'testedFile');
+	expect(browser.notifications.create.callCount).toBe(1);
+	expect(browser.notifications.create.args[0][0]).toEqual(
+		{
+			message: 'Test error occured: testedFile',
+			title: '❗ Error encountered',
+			type: 'basic'
+		}
+	);
 });

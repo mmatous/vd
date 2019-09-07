@@ -39,7 +39,6 @@ export async function getJson(url) {
 
 export async function notifyUser(preset, message) {
 	const options = {
-		iconUrl: browser.runtime.getURL(preset.iconUrl),
 		message: message,
 		title: preset.title,
 		type: 'basic'

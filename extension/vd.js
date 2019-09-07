@@ -134,7 +134,7 @@ export async function downloadDigest(url) {
 async function handleError(err, entry) {
 	console.error(`${err}`);
 	await cleanup(entry);
-	await utils.notifyUser(constants.Preset.error, err);
+	await utils.notifyUser(constants.Preset.error, err.message);
 }
 
 async function handleVerdict(verdict, filePath) {
@@ -163,7 +163,7 @@ async function handleVerdict(verdict, filePath) {
 
 export async function handleAppResponse(response, filePath) {
 	if (response.result) {
-		handleVerdict(response.result, filePath);
+		await handleVerdict(response.result, filePath);
 	} else if (response.error) {
 		console.error(response.error);
 		const shouldNotify = await addonSettings.get(constants.Settings.notifyError);
