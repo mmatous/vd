@@ -5,9 +5,6 @@ import * as automaticSettings
 import { Settings } from '../constants.js';
 import * as options from './options.js';
 
-options.setOptionName(document, 'notify-error', Settings.notifyError);
-options.setOptionName(document, 'notify-fail', Settings.notifyFail);
-options.setOptionName(document, 'notify-success', Settings.notifySuccess);
 options.setOptionName(document, 'regex-list', Settings.regexList);
 
 document.getElementById('downloadVerifier').addEventListener('click', options.downloadVerifier);
