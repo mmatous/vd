@@ -55,18 +55,16 @@ test('downloadDigest() rejects on rejected downloads', async () => {
 		.rejects.toEqual(Error('unable to download digest https://host.io/path/v.file: 403'));
 });
 
-
-//this is a hack, see shouldBeIgnored() for more info
-test('shouldBeIgnored() returns true any download with #vd-ignore fragment', () => {
-	expect(vd.shouldBeIgnored(
-		{ url: 'https://host.io/path/f.sha1#vd-ignore' }
+test('shouldBeIgnored() returns true any download by vd@vd.io', () => {
+	expect(vd.shouldBeIgnored({
+		url: 'https://host.io/path/f.sha1',
+		byExtensionId: 'vd@vd.io'
+	}
 	)).toBe(true);
 });
 
-test('shouldBeIgnored() returns false for any download without #vd-ignore fragment', () => {
-	expect(vd.shouldBeIgnored(
-		{ url: 'https://host.io/path/f.file' }
-	)).toBe(false);
+test('shouldBeIgnored() returns false for any download not by vd@vd.io', () => {
+	expect(vd.shouldBeIgnored({ url: 'https://host.io/path/f.file' })).toBe(false);
 });
 
 test('getDigestUrls() return a list of digest urls', async () => {

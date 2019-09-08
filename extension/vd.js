@@ -15,12 +15,7 @@ import * as app from './app.js';
 export const downloadList = new DownloadList(constants.REMEMBER_DOWNLOADS, ctxMenus.deleteContextMenu);
 
 export function shouldBeIgnored(downloadItem) {
-	return downloadItem.url.endsWith('#vd-ignore');
-	/*
-	horrible hack, until FF69 https://bugzilla.mozilla.org/show_bug.cgi?id=1305663
-	the following (or ID equiv) is not possible
-	return downloadItem.byExtensionName && downloadItem.byExtensionName == 'vd';
-	*/
+	return downloadItem.byExtensionId === 'vd@vd.io';
 }
 
 export async function matchFromList(url, list) {
@@ -122,7 +117,7 @@ export async function handleDownloadCreated(downloadItem) {
 export async function downloadDigest(url) {
 	try {
 		const downloadId = await browser.downloads.download({
-			url: url.href + '#vd-ignore', // horrible hack, see shouldBeIgnored() for reason
+			url: url.href,
 			saveAs: false,
 		});
 		let dItem = await browser.downloads.search({id: downloadId});
