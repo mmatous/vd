@@ -1,5 +1,6 @@
+import { versionRequest } from '../app.js';
 import { VD_VERIFIER_API_URL, VD_VERIFIER_URL } from '../constants.js';
-import { getJson, testVerifier } from '../utils.js';
+import { getJson } from '../utils.js';
 
 export function setOptionName(doc, elementId, optionName) {
 	doc.getElementById(elementId).name = optionName;
@@ -18,10 +19,10 @@ export function downloadVerifier() {
 }
 
 export function handleTestVerifierClick() {
-	testVerifier().then((version) => {
+	versionRequest().then((version) => {
 		document.getElementById('testResult').value = `Setup OK, version: ${version}`;
 	}).catch((err) => {
-		console.error(`vd-verifier responded: ${err}`);
+		console.error(`vd-verifier responded: ${err.message}`);
 		const errResponse = `Something went wrong.
 			Please ensure you have the latest version of vd-verifier installed correctly.`;
 		document.getElementById('testResult').value = errResponse;

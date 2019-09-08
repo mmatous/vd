@@ -1,3 +1,5 @@
+'use strict';
+
 import { DownloadState } from '../extension/downloadlist.js';
 
 export const testDownloadItem = {
@@ -47,3 +49,14 @@ export const testHtml =
 	</body>
 </html>
 `;
+
+export function createAppResponse(integrityStatus, iStatusText, signatureStatus, sStatusText) {
+	return {
+		integrity: {
+			[integrityStatus]: iStatusText
+		},
+		signatures: {
+			[signatureStatus]: sStatusText
+		},
+	};
+}
