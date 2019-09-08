@@ -1,14 +1,11 @@
 'use strict';
 
+import { DownloadListItem } from '../extension/downloadlist.js';
 import * as browser from 'sinon-chrome/webextensions';
 import fetch from 'jest-fetch-mock';
 
 import * as vd from '../extension/vd.js';
 import * as helpers from './helpers.js';
-import {
-	get
-} from '../extension/3rdparty/TinyWebEx/AddonSettings/AddonSettings.js';
-jest.mock('../extension/3rdparty/TinyWebEx/AddonSettings/AddonSettings.js');
 
 jest.useFakeTimers();
 
@@ -155,50 +152,26 @@ test('matchFromList() returns null if no regex matches URL', async () => {
 	expect(res).toEqual(null);
 });
 
-test('handleAppResponse() results in success notification if integrity passes', async () => {
-	get.mockResolvedValue(true);
-	browser.notifications.create.returns(Promise.resolve(true));
-	const appResponse = {result: 'i'};
-
-	await vd.handleAppResponse(appResponse, 'testedFile');
-	expect(browser.notifications.create.callCount).toBe(1);
-	expect(browser.notifications.create.args[0][0]).toEqual(
-		{
-			message: 'testedFile',
-			title: '✅ Integrity verified',
-			type: 'basic'
-		}
-	);
+test('sendIfReady() returns false if sending to native app was unsuccessful', async () => {
+	// do not set mocks to simulate comunication problems
+	const entry = new DownloadListItem(helpers.testDownloadItem);
+	const hex = '277c1bfe069a889eb752d3c630db34310102b2bb2f0c0ff11cf4246e333b3503';
+	entry.setDigest(hex);
+	entry.markDownloaded(helpers.testDownloadItem.id);
+	const res = await vd.sendIfReady(entry);
+	expect(res).toBe(false);
 });
 
-test('handleAppResponse() results in failure notification if verification fails', async () => {
-	get.mockResolvedValue(true);
-	browser.notifications.create.returns(Promise.resolve(true));
-	const appResponse = {result: 'f'};
+test('sendIfReady() returns true if sending to native app was successful', async () => {
+	const response = helpers.createAppResponse('Ok', 'UNTESTED', 'Ok', 'UNTESTED');
+	browser.runtime.sendNativeMessage.returns(Promise.resolve(response));
 
-	await vd.handleAppResponse(appResponse, 'testedFile');
-	expect(browser.notifications.create.callCount).toBe(1);
-	expect(browser.notifications.create.args[0][0]).toEqual(
-		{
-			message: 'testedFile',
-			title: '❌ Verification failed',
-			type: 'basic'
-		}
-	);
-});
+	const entry = new DownloadListItem(helpers.testDownloadItem);
+	const hex = '277c1bfe069a889eb752d3c630db34310102b2bb2f0c0ff11cf4246e333b3503';
+	entry.setDigest(hex);
+	entry.markDownloaded(helpers.testDownloadItem.id);
 
-test('handleAppResponse() results in error notification if an error occurs', async () => {
-	get.mockResolvedValue(true);
-	browser.notifications.create.returns(Promise.resolve(true));
-	const appResponse = {error: 'Test error occured'};
 
-	await vd.handleAppResponse(appResponse, 'testedFile');
-	expect(browser.notifications.create.callCount).toBe(1);
-	expect(browser.notifications.create.args[0][0]).toEqual(
-		{
-			message: 'Test error occured: testedFile',
-			title: '❗ Error encountered',
-			type: 'basic'
-		}
-	);
+	const res = await vd.sendIfReady(entry);
+	expect(res).toBe(true);
 });

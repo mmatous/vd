@@ -1,5 +1,8 @@
+'use strict';
+
 export const Preset = Object.freeze({
 	error: { title: '❗ Error encountered' },
+	results: { title: 'Verification results' },
 	fail: { title: '❌ Verification failed' },
 	integrity: { title: '✅ Integrity verified' },
 	authenticity: { title: 'Authenticity verified' }

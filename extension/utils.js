@@ -1,6 +1,6 @@
 'use strict';
 
-import { FETCH_TIMEOUT_MS, NATIVE_APP_ID } from './constants.js';
+import { FETCH_TIMEOUT_MS } from './constants.js';
 
 export function isDigestString(hexStr) {
 	// 20-64 pairs of hex characters (bytes)
@@ -44,17 +44,6 @@ export async function notifyUser(preset, message) {
 		type: 'basic'
 	};
 	await browser.notifications.create(options);
-}
-
-export async function testVerifier() {
-	const testMessage = { ping: 'versionRequest' };
-	const response = await browser.runtime.sendNativeMessage(NATIVE_APP_ID, testMessage);
-	console.info(`Native app responded: ${JSON.stringify(response, null, '\t')}`);
-	if (!response.result) {
-		throw Error(response);
-	} else {
-		return response.result;
-	}
 }
 
 export function toRaw(str) {

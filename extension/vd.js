@@ -1,4 +1,5 @@
 'use strict';
+
 import * as addonSettings
 	from './3rdparty/TinyWebEx/AddonSettings/AddonSettings.js';
 import * as constants from './constants.js';
@@ -9,6 +10,7 @@ import {
 } from './downloadlist.js';
 import * as parsing from './parsing.js';
 import * as utils from './utils.js';
+import * as app from './app.js';
 
 export const downloadList = new DownloadList(constants.REMEMBER_DOWNLOADS, ctxMenus.deleteContextMenu);
 
@@ -70,7 +72,7 @@ export async function getDigestUrls(fileUrl, useRegexList = true) {
 }
 
 export function handleInstalled() {
-	utils.testVerifier().catch(() => {
+	app.versionRequest().catch(() => {
 		const err = `vd-verifier is not working correctly.
 Please ensure you have the latest version from ${constants.VD_VERIFIER_URL}`;
 		utils.notifyUser(constants.Preset.error, err);
@@ -137,55 +139,6 @@ async function handleError(err, entry) {
 	await utils.notifyUser(constants.Preset.error, err.message);
 }
 
-async function handleVerdict(verdict, filePath) {
-	let notifyPreset;
-	let shouldNotify;
-	switch (verdict) {
-	case 'i':
-		console.info(`Integrity verified - ${filePath}`);
-		notifyPreset = constants.Preset.integrity;
-		shouldNotify = await addonSettings.get(constants.Settings.notifySuccess);
-		break;
-	case 'a':
-		console.info(`Authenticity verified - ${filePath}`);
-		notifyPreset = constants.Preset.authenticity;
-		shouldNotify = await addonSettings.get(constants.Settings.notifySuccess);
-		break;
-	default:
-		console.info(`Verification failed - ${filePath}`);
-		notifyPreset = constants.Preset.fail;
-		shouldNotify = await addonSettings.get(constants.Settings.notifyFail);
-	}
-	if (shouldNotify) {
-		await utils.notifyUser(notifyPreset, filePath);
-	}
-}
-
-export async function handleAppResponse(response, filePath) {
-	if (response.result) {
-		await handleVerdict(response.result, filePath);
-	} else if (response.error) {
-		console.error(response.error);
-		const shouldNotify = await addonSettings.get(constants.Settings.notifyError);
-		if (shouldNotify) {
-			await utils.notifyUser(constants.Preset.error, `${response.error}: ${filePath}`);
-		}
-	} else {
-		throw Error(`invalid response ${JSON.stringify(response)}`);
-	}
-}
-
-async function sendToNativeApp(entry) {
-	const serialized = entry.serialize();
-	try {
-		const response = await browser.runtime.sendNativeMessage(constants.NATIVE_APP_ID, serialized);
-		console.info(`Native app responded: ${JSON.stringify(response, null, '\t')}`);
-		await handleAppResponse(response, entry.inputFile);
-	} catch (e) {
-		throw Error(`error communicating with vd-verifier: ${e}`);
-	}
-}
-
 async function handleDownloadFinished(delta) {
 	const entry = downloadList.getByAnyId(delta.id);
 	if (!entry) {
@@ -197,14 +150,16 @@ async function handleDownloadFinished(delta) {
 
 export async function sendIfReady(entry) {
 	if (!entry.readyForVerification()) {
-		return;
+		return false;
 	}
 	try {
-		await sendToNativeApp(entry);
+		await app.sendToNativeApp(entry);
 	} catch (e) {
 		await handleError(e, entry);
+		return false;
 	}
 	await cleanup(entry);
+	return true;
 }
 
 async function handleDownloadInterrupted(delta) {
