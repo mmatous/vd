@@ -1,6 +1,6 @@
 # vd
 
-![GitHub](https://img.shields.io/github/license/mmatous/vd?color=blue&style=plastic)
+[![GitHub](https://img.shields.io/github/license/mmatous/vd?color=blue&style=plastic)](LICENSE)
 [![Build Status](https://travis-ci.com/mmatous/vd.svg?branch=master)](https://travis-ci.com/mmatous/vd)
 [![codecov](https://codecov.io/gh/mmatous/vd/branch/master/graph/badge.svg)](https://codecov.io/gh/mmatous/vd)
 [![Mozilla Add-on](https://img.shields.io/amo/v/vdownloads.svg?style=plastic)](https://addons.mozilla.org/en-US/firefox/addon/vdownloads/)
@@ -33,15 +33,17 @@ User feedback is provided via notifications. You can also consult browser consol
 
 ### Features
 
-- Verify most common digest files automatically (e.g. sha1sums or .sha256 suffixes)
+- Verify most common digest files automatically (e.g. sha1sums files or .sha256 suffixes)
 - Manually assign digest to downloaded file
 - User-defined lists for searching
 - Context menu for manualy pairing digest/signature with download
+- Initial signature support (detached signatures)
 
 #### Planned
-- Verify signatures
-- Nicer logo!
+- Signed digests
+- UI polish
 - Localization & accessibility improvements
+- Nicer logo! Well... any logo
 
 ## Permissions
 
@@ -59,14 +61,14 @@ storage—settings persistence
 
 ## Build
 
-```
+```bash
 yarn install
 yarn build
 ```
 
 ## Test
 
-```
+```bash
 yarn lint
 yarn test
 ```

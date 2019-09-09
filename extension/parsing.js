@@ -33,7 +33,7 @@ function normalizeLink(link, fileDir) {
 			return linkHref;
 		}
 	} catch (e) {
-		// ignore hrefs that cannot be made into URL
+		// ignore linkHref that cannot be made into valid URL
 	}
 }
 
@@ -69,4 +69,10 @@ export function matchFileSumsLinks(filename, urls) {
 export function matchAgregatedSumsLinks(urls) {
 	const agregatedSumsRe = /^(?:sha(?:512|256|1))sum(?!.*.asc|.*.pgp|.*.sig|.*.sign)/i;
 	return matchLinks(agregatedSumsRe, urls);
+}
+
+export function filterSignatureLinks(filename, urls) {
+	const signatureRe = '^' + filename + '(?:.sig|.asc|.pgp)$';
+	const re = new RegExp(signatureRe, 'i');
+	return matchLinks(re, urls);
 }

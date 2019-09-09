@@ -39,7 +39,7 @@ export class DownloadList {
 	// digest & regular download IDs are guaranteed not to overlap
 	getByAnyId(key) {
 		return this.downloads.find((listItem) => {
-			return listItem.id === key || listItem.digestId === key;
+			return listItem.id === key || listItem.digestId === key || listItem.signatureId === key;
 		});
 	}
 
@@ -76,13 +76,18 @@ export class DownloadListItem {
 		this.digestFile = null;
 		this.digestHex = null;
 		this.digestState = DownloadState.unknown;
+
 		this.id = downloadItem.id;
 		this.inputFile = downloadItem.filename; //is absolute path
 		this.inputFileState = DownloadState.downloading;
 		this.originalFilename = getFilename(downloadItem.url);
+
+		this.signatureId = null;
+		this.signatureFile = null;
+		this.signatureState = DownloadState.unknown;
 	}
 
-	bothFilesDownloaded() {
+	downloadedWithDigest() {
 		return this.inputFileState === DownloadState.downloaded
 			&& this.digestState === DownloadState.downloaded;
 	}
@@ -92,16 +97,29 @@ export class DownloadListItem {
 			&& this.digestHex !== null;
 	}
 
+	downloadedWithSignature() {
+		return this.inputFileState === DownloadState.downloaded
+			&& this.signatureState === DownloadState.downloaded;
+	}
+
 	readyForVerification() {
-		return this.bothFilesDownloaded() || this.fileDownloadedDigestManual();
+		return this.downloadedWithDigest()
+			|| this.fileDownloadedDigestManual()
+			|| this.downloadedWithSignature();
 	}
 
 	markDownloaded(id) {
-		if (this.id === id) {
+		switch (id) {
+		case this.id:
 			this.inputFileState = DownloadState.downloaded;
-		} else if (this.digestId === id) {
+			break;
+		case this.digestId:
 			this.digestState = DownloadState.downloaded;
-		} else {
+			break;
+		case this.signatureId:
+			this.signatureState = DownloadState.downloaded;
+			break;
+		default:
 			throw Error(`invalid id to be marked downloaded ${id} for ${this.inputFile} (${this.id})`);
 		}
 	}
@@ -112,8 +130,12 @@ export class DownloadListItem {
 		res['input-file'] = this.inputFile;
 		if (this.digestFile) {
 			res['digest-file'] = this.digestFile;
-		} else {
+		} else if (this.digestHex) {
 			res['digest-direct'] = this.digestHex;
+		} else if (this.signatureFile) {
+			res['signature-file'] = this.signatureFile;
+		} else {
+			throw Error('File unfit to be sent to be serialized');
 		}
 		return res;
 	}
@@ -137,6 +159,11 @@ export class DownloadListItem {
 		this.digestHex = null;
 		this.digestId = digestDownloadItem.id;
 		this.digestState = DownloadState.downloading;
-		return true;
+	}
+
+	setSignatureFile(sigDownloadItem) {
+		this.signatureId = sigDownloadItem.id;
+		this.signatureFile = sigDownloadItem.filename;
+		this.signatureState = DownloadState.downloading;
 	}
 }

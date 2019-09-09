@@ -54,3 +54,23 @@ test('matchFileSumsLinks() returns any URLs containing digest file', () => {
 		new URL('https://host.io/file.name.sha512')
 	]);
 });
+
+test('filterSignatureLinks() returns any URLs containing file signature', () => {
+	expect(parsing.matchFileSumsLinks('file.name', [
+		new URL('https://host.io/file.name.DIGESTS'),
+		new URL('https://host.io/file.name.hash.txt'),
+		new URL('https://host.io/file.name.gpg'),
+		new URL('https://host.io/file.name.sha512'),
+		new URL('https://host.io/sha512sums'),
+		new URL('https://host.io/sha512.sha1'),
+		new URL('https://host.io/notfile.name.sha1'),
+		new URL('https://host.io/file.name'),
+		new URL('https://host.io/file.name.DIGESTS.asc'),
+		new URL('https://host.io/file.name.pgp'),
+		new URL('https://host.io/file.name.asc')
+	])).toEqual([
+		new URL('https://host.io/file.name.asc'),
+		new URL('https://host.io/file.name.sig'),
+		new URL('https://host.io/file.name.pgp')
+	]);
+});

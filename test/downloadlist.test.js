@@ -43,7 +43,7 @@ test('DownloadList can save & retrieve entry', () => {
 
 	list.createEntry(helpers.testDownloadItem);
 	const retrieved = list.getByDownloadId(helpers.testDownloadItem.id);
-	expect(retrieved).toEqual(downloadListItemInitial);
+	expect(retrieved).toEqual(expect.objectContaining(downloadListItemInitial));
 });
 
 test('Fresh DownloadList is empty', () => {
@@ -70,17 +70,20 @@ test('getByDigestId() retrieves correct entry', () => {
 	res.setDigestFile(helpers.testDigestItem);
 
 	const digestParent = list.getByDigestId(helpers.testDigestItem.id);
-	expect(digestParent).toEqual(downloadListItemWithDigestFile);
+	expect(digestParent).toEqual(expect.objectContaining(downloadListItemWithDigestFile));
 });
 
 test('getByAnyId() retrieves correct entry', () => {
 	const list = new DownloadList(2);
 	const res = list.createEntry(helpers.testDownloadItem);
 	res.setDigestFile(helpers.testDigestItem);
+	res.setSignatureFile(helpers.testSigItem);
 
 	const digestParent = list.getByAnyId(helpers.testDigestItem.id);
-	const retrieved = list.getByAnyId(helpers.testDownloadItem.id);
-	expect(digestParent).toEqual(retrieved);
+	const retrievedByDigest = list.getByAnyId(helpers.testDownloadItem.id);
+	const retrievedBySig = list.getByAnyId(helpers.testSigItem.id);
+	expect(digestParent).toBe(retrievedByDigest);
+	expect(retrievedByDigest).toBe(retrievedBySig);
 });
 
 test('hasRegularDownload() returns true if RD exists', () => {
@@ -151,6 +154,14 @@ test('markDownloaded() marks digest if passed digest ID', () => {
 	expect(entry.digestState).toEqual(DownloadState.downloaded);
 });
 
+test('markDownloaded() marks signature if passed signature ID', () => {
+	const entry = new DownloadListItem(helpers.testDownloadItem);
+	entry.setSignatureFile(helpers.testSigItem);
+
+	entry.markDownloaded(helpers.testSigItem.id);
+	expect(entry.signatureState).toBe(DownloadState.downloaded);
+});
+
 test('markDownloaded() throws if provided with invalid ID', () => {
 	const entry = new DownloadListItem(helpers.testDownloadItem);
 
@@ -172,8 +183,7 @@ test('readyForVerification() returns true if both file and digest finished downl
 	expect(entry.readyForVerification()).toBe(false);
 });
 
-test('readyForVerification() returns true if both file finished downloading \
-and digest is set manually', () => {
+test('readyForVerification() returns true if file finished and digest is set manually', () => {
 	const entry = new DownloadListItem(helpers.testDownloadItem);
 	const hex = '277c1bfe069a889eb752d3c630db34310102b2bb2f0c0ff11cf4246e333b3503';
 	entry.setDigest(hex);
@@ -181,6 +191,19 @@ and digest is set manually', () => {
 	expect(entry.readyForVerification()).toBe(false);
 	entry.markDownloaded(helpers.testDownloadItem.id);
 	expect(entry.readyForVerification()).toBe(true);
+});
+
+test('readyForVerification() returns true if both file and signature finished downloading', () => {
+	const entry = new DownloadListItem(helpers.testDownloadItem);
+	entry.setSignatureFile(helpers.testSigItem);
+
+	expect(entry.readyForVerification()).toBe(false);
+	entry.markDownloaded(helpers.testSigItem.id);
+	expect(entry.readyForVerification()).toBe(false);
+	entry.markDownloaded(helpers.testDownloadItem.id);
+	expect(entry.readyForVerification()).toBe(true);
+	entry.signatureState = DownloadState.downloading;
+	expect(entry.readyForVerification()).toBe(false);
 });
 
 test('serialize() returns object for consumption by vd-verifier (digestFile)', () => {
@@ -204,4 +227,20 @@ test('serialize() returns object for consumption by vd-verifier (hexStr digest)'
 	expect(res['input-file']).toEqual(downloadListItemInitial.inputFile);
 	expect(res['digest-direct']).toEqual(hex);
 	expect(Object.keys(res).length).toEqual(3);
+});
+
+test('serialize() returns object for consumption by vd-verifier (detached signature)', () => {
+	const entry = new DownloadListItem(helpers.testDownloadItem);
+	entry.setSignatureFile(helpers.testSigItem);
+	const res = entry.serialize();
+
+	expect(res['original-filename']).toEqual(downloadListItemInitial.originalFilename);
+	expect(res['input-file']).toEqual(downloadListItemInitial.inputFile);
+	expect(res['signature-file']).toEqual(helpers.testSigItem.filename);
+	expect(Object.keys(res).length).toEqual(3);
+});
+
+test('serialize() throws if no field for verification present', () => {
+	const entry = new DownloadListItem(helpers.testDownloadItem);
+	expect(() => entry.serialize()).toThrow();
 });

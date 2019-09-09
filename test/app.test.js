@@ -16,28 +16,28 @@ beforeEach(() => {
 });
 
 test('validResponse() returns true if appResponse is well-formed', () => {
-	const appResponse = helpers.createAppResponse('Ok', 'PASS', 'Ok', 'UNTESTED');
+	const appResponse = helpers.createAppResponse('Ok', 'PASS', 'Ok', []);
 	let res = app.validResponse(appResponse);
-	expect(res).toBe(true);
+	expect(res).toBeTruthy();
 });
 
 test('validResponse() returns false if appResponse is not an object', () => {
 	let res = app.validResponse(true);
-	expect(res).toBe(false);
+	expect(res).toBeFalsy();
 });
 
 test('validResponse() returns false if appResponse has missing fields', () => {
-	const appResponse = helpers.createAppResponse('Ok', 'PASS', 'Ok', 'UNTESTED');
+	const appResponse = helpers.createAppResponse('Ok', 'PASS', 'Ok', []);
 	appResponse.integrity = undefined;
 	let res = app.validResponse(appResponse);
 
-	expect(res).toBe(false);
+	expect(res).toBeFalsy();
 });
 
 test('handleAppResponse() results in success notification if integrity passes', async () => {
 	get.mockResolvedValue(true);
 	browser.notifications.create.resolves(true);
-	const appResponse = helpers.createAppResponse('Ok', 'PASS', 'Ok', 'UNTESTED');
+	const appResponse = helpers.createAppResponse('Ok', 'PASS', 'Ok', []);
 
 	await app.handleAppResponse(appResponse, 'testedFile');
 	expect(browser.notifications.create.callCount).toBe(1);
@@ -53,7 +53,7 @@ test('handleAppResponse() results in success notification if integrity passes', 
 test('handleAppResponse() results in failure notification if verification fails', async () => {
 	get.mockResolvedValue(true);
 	browser.notifications.create.resolves(true);
-	const appResponse = helpers.createAppResponse('Ok', 'FAIL', 'Ok', 'UNTESTED');
+	const appResponse = helpers.createAppResponse('Ok', 'FAIL', 'Ok', []);
 
 	await app.handleAppResponse(appResponse, 'testedFile');
 	expect(browser.notifications.create.callCount).toBe(1);
@@ -69,7 +69,7 @@ test('handleAppResponse() results in failure notification if verification fails'
 test('handleAppResponse() results in error notification if an error occurs', async () => {
 	get.mockResolvedValue(true);
 	browser.notifications.create.resolves(true);
-	const appResponse = helpers.createAppResponse('Err', 'unable to open file', 'Ok', 'UNTESTED');
+	const appResponse = helpers.createAppResponse('Err', 'unable to open file', 'Ok', []);
 
 	await app.handleAppResponse(appResponse, 'testedFile');
 	expect(browser.notifications.create.callCount).toBe(1);
@@ -87,11 +87,7 @@ test('versionRequest() sends message to app in correct format', async () => {
 
 	await app.versionRequest();
 	expect(browser.runtime.sendNativeMessage.callCount).toBe(1);
-	expect(browser.runtime.sendNativeMessage.args[0][1]).toEqual(
-		{
-			'version-request': true
-		}
-	);
+	expect(browser.runtime.sendNativeMessage.args[0][1]).toEqual( { 'version-request': true });
 });
 
 test('versionRequest() throws on malformed response', async () => {

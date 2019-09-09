@@ -39,20 +39,19 @@ test('selectDigest() returns undefined if no option available', () => {
 });
 
 
-test('downloadDigest() returns digest DownloadItem if successful', async () => {
-	browser.downloads.download.returns(Promise.resolve(helpers.testDigestItem.id));
-	browser.downloads.search.returns(Promise.resolve([helpers.testDigestItem]));
+test('browserDownloadFile() returns DownloadItem if successful', async () => {
+	browser.downloads.download.resolves(helpers.testDigestItem.id);
+	browser.downloads.search.resolves([helpers.testDigestItem]);
 
-	const res = await vd.downloadDigest(new URL('https://host.io/path/v.file.sha1'));
+	const res = await vd.browserDownloadFile(new URL('https://host.io/path/v.file.sha1'));
 	expect(res).toEqual(helpers.testDigestItem);
 });
 
-test('downloadDigest() rejects on rejected downloads', async () => {
-	browser.downloads.download.returns(Promise.reject('403'));
-	browser.downloads.search.returns(Promise.resolve([{ filename: '/path/to/download/v.file.sha1' }]));
+test('browserDownloadFile() rejects on rejected downloads', async () => {
+	browser.downloads.download.rejects('403');
 
-	await expect(vd.downloadDigest(new URL('https://host.io/path/v.file')))
-		.rejects.toEqual(Error('unable to download digest https://host.io/path/v.file: 403'));
+	await expect(vd.browserDownloadFile(new URL('https://host.io/path/v.file')))
+		.rejects.toEqual(Error('unable to download https://host.io/path/v.file: 403'));
 });
 
 test('shouldBeIgnored() returns true any download by vd@vd.io', () => {
@@ -67,21 +66,25 @@ test('shouldBeIgnored() returns false for any download not by vd@vd.io', () => {
 	expect(vd.shouldBeIgnored({ url: 'https://host.io/path/f.file' })).toBe(false);
 });
 
-test('getDigestUrls() return a list of digest urls', async () => {
-	fetch.mockResponseOnce(helpers.testHtml);
-
-	const res = await vd.getDigestUrls(new URL('https://host.io/path/f.ext'), false);
+test('getDigestUrls() return a list of digest urls from a list of urls', async () => {
+	const urls = [
+		new URL('https://host.io/path/f.ext'),
+		new URL('https://host.io/path/f.ext.sha256'),
+		new URL('https://host.io/path/differentFile.ext'),
+		new URL('https://host.io/path/differentFile.ext.sha1')
+	];
+	const res = await vd.getDigestUrls('f.ext', urls, false);
 	expect(res).toEqual([new URL('https://host.io/path/f.ext.sha1')]);
 });
 
 test('cleanup() removes file (digest), deletes ext. entry (digest, file)', async () => {
 	browser.downloads.removeFile.returns(Promise.resolve());
 	browser.downloads.erase.returns(Promise.resolve([0]));
-	const res = vd.createListEntry(helpers.testDownloadItem);
+	const res = vd.registerDownload(helpers.testDownloadItem);
 	res.setDigestFile(helpers.testDigestItem);
 	res.markDownloaded(helpers.testDigestItem.id);
 
-	await vd.cleanup(res);
+	await vd.cleanup(res.digestId, res.digestState);
 	expect(browser.downloads.cancel.callCount).toBe(0);
 	expect(browser.downloads.removeFile.callCount).toBe(1);
 	expect(browser.downloads.removeFile.args[0][0]).toBe(helpers.testDigestItem.id);
@@ -91,10 +94,10 @@ test('cleanup() removes file (digest), deletes ext. entry (digest, file)', async
 test('cleanup() clears downloads even if file removal fails', async () => {
 	browser.downloads.erase.returns(Promise.resolve([0]));
 	browser.downloads.cancel.returns(Promise.reject('other error'));
-	const res = vd.createListEntry(helpers.testDownloadItem);
+	const res = vd.registerDownload(helpers.testDownloadItem);
 	res.setDigestFile(helpers.testDigestItem);
 
-	await vd.cleanup(res);
+	await vd.cleanup(res.digestId, res.digestState);
 	expect(browser.downloads.removeFile.callCount).toBe(0);
 	expect(browser.downloads.cancel.callCount).toBe(1);
 	expect(browser.downloads.erase.args[0][0]).toEqual({ id: helpers.testDigestItem.id });
@@ -106,7 +109,7 @@ test('handleDownloadCreated() returns new entry with digest info if all successf
 	browser.downloads.search.returns(Promise.resolve([helpers.testDigestItem]));
 
 	const res = await vd.handleDownloadCreated(helpers.testDownloadItem);
-	expect(res).toEqual(helpers.testDownloadListItem);
+	expect(res).toEqual(expect.objectContaining(helpers.testDownloadListItem));
 });
 
 test('handleDownloadCreated() returns undefined if no page to parse', async () => {
@@ -117,7 +120,7 @@ test('handleDownloadCreated() returns undefined if no page to parse', async () =
 	);
 
 	const res = await vd.handleDownloadCreated(helpers.testDownloadItem);
-	expect(res).toEqual(undefined);
+	expect(res).toBe(undefined);
 });
 
 test('matchFromList() returns value matching regex key', async () => {
@@ -172,4 +175,48 @@ test('sendIfReady() returns true if sending to native app was successful', async
 
 	const res = await vd.sendIfReady(entry);
 	expect(res).toBe(true);
+});
+
+test('selectSignature() returns any available option', () => {
+	const signatures = [
+		'https://host.io/path/sha512sums.txt',
+		'https://host.io/sha512sums.txt',
+		'https://host.io/notadigest.html'
+	];
+	expect(signatures).toContain(vd.selectSignature(signatures));
+});
+
+test('selectSignature() returns undefined if no option available', () => {
+	expect(vd.selectSignature([])).toEqual(undefined);
+});
+
+test('autodetectSignature() returns null if no signature detected', async () => {
+	const entry = new DownloadListItem(helpers.testDownloadItem);
+	const urls = [
+		new URL('https://host.io/path/sha512sums.txt'),
+		new URL('https://host.io/sha512sums.txt'),
+		new URL('https://host.io/notadigest.html'),
+		new URL('https://host.io/path/f.ext'),
+		new URL('https://host.io/path/f.ext.sha256'),
+	];
+
+	let res = await vd.autodetectSignature('f.ext', urls, entry);
+	expect(res).toBe(null);
+});
+
+test('autodetectSignature() returns download ID if signature queued for download', async () => {
+	browser.downloads.download.resolves(5);
+	browser.downloads.search.resolves([{ filename: '/path/to/download/f.ext.sig', id: 5 }]);
+	const entry = new DownloadListItem(helpers.testDownloadItem);
+	const urls = [
+		new URL('https://host.io/path/sha512sums.txt'),
+		new URL('https://host.io/sha512sums.txt'),
+		new URL('https://host.io/notadigest.html'),
+		new URL('https://host.io/path/f.ext'),
+		new URL('https://host.io/path/f.ext.sha256'),
+		new URL('https://host.io/path/f.ext.sig'),
+	];
+
+	let res = await vd.autodetectSignature('f.ext', urls, entry);
+	expect(res).toBe(5);
 });
