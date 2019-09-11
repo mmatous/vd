@@ -85,6 +85,7 @@ export class DownloadListItem {
 		this.signatureId = null;
 		this.signatureFile = null;
 		this.signatureState = DownloadState.unknown;
+		this.signedDataKind = null;
 	}
 
 	downloadedWithDigest() {
@@ -132,9 +133,12 @@ export class DownloadListItem {
 			res['digest-file'] = this.digestFile;
 		} else if (this.digestHex) {
 			res['digest-direct'] = this.digestHex;
-		} else if (this.signatureFile) {
+		}
+		if (this.signatureFile) {
 			res['signature-file'] = this.signatureFile;
-		} else {
+			res['signed-data'] = this.signedDataKind;
+		}
+		if ((!this.digestFile && !this.digestHex) && !this.signatureFile) {
 			throw Error('File unfit to be sent to be serialized');
 		}
 		return res;
@@ -161,9 +165,10 @@ export class DownloadListItem {
 		this.digestState = DownloadState.downloading;
 	}
 
-	setSignatureFile(sigDownloadItem) {
+	setSignatureFile(sigDownloadItem, signedDataKind) {
 		this.signatureId = sigDownloadItem.id;
 		this.signatureFile = sigDownloadItem.filename;
 		this.signatureState = DownloadState.downloading;
+		this.signedDataKind = signedDataKind;
 	}
 }

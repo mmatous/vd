@@ -6,6 +6,7 @@ import fetch from 'jest-fetch-mock';
 
 import * as vd from '../extension/vd.js';
 import * as helpers from './helpers.js';
+import * as constants from '../extension/constants.js';
 
 jest.useFakeTimers();
 
@@ -204,9 +205,9 @@ test('autodetectSignature() returns null if no signature detected', async () => 
 	expect(res).toBe(null);
 });
 
-test('autodetectSignature() returns download ID if signature queued for download', async () => {
-	browser.downloads.download.resolves(5);
-	browser.downloads.search.resolves([{ filename: '/path/to/download/f.ext.sig', id: 5 }]);
+test('autodetectSignature() returns sig. download item if signature queued for download', async () => {
+	browser.downloads.download.resolves(helpers.testSigItem.id);
+	browser.downloads.search.resolves([helpers.testSigItem]);
 	const entry = new DownloadListItem(helpers.testDownloadItem);
 	const urls = [
 		new URL('https://host.io/path/sha512sums.txt'),
@@ -218,5 +219,51 @@ test('autodetectSignature() returns download ID if signature queued for download
 	];
 
 	let res = await vd.autodetectSignature('f.ext', urls, entry);
-	expect(res).toBe(5);
+	expect(res).toBe(helpers.testSigItem);
+});
+
+test('autodetectDigest() returns null if no digest detected', async () => {
+	const entry = new DownloadListItem(helpers.testDownloadItem);
+	const urls = [
+		new URL('https://host.io/path/sha512sums.txt.gpg'),
+		new URL('https://host.io/winds_of_winter.epub'),
+		new URL('https://host.io/notadigest.html'),
+		new URL('https://host.io/path/f.ext'),
+		new URL('https://host.io/path/f.ext.sha0'),
+	];
+
+	let res = await vd.autodetectDigest('f.ext', urls, entry);
+	expect(res).toBe(null);
+});
+
+test('autodetectDigest() returns digest download item if digest queued for download', async () => {
+	browser.downloads.download.resolves(helpers.testDigestItem.id);
+	browser.downloads.search.resolves([helpers.testDigestItem]);
+	const entry = new DownloadListItem(helpers.testDownloadItem);
+	const urls = [
+		new URL('https://host.io/path/sha512sums.txt'),
+		new URL('https://host.io/sha512sums.txt'),
+		new URL('https://host.io/notadigest.html'),
+		new URL('https://host.io/path/f.ext'),
+		new URL('https://host.io/path/f.ext.sha256'),
+		new URL('https://host.io/path/f.ext.sig'),
+	];
+
+	let res = await vd.autodetectDigest('f.ext', urls, entry);
+	expect(res).toBe(helpers.testDigestItem);
+});
+
+// values don't really matter as long as the calls bubble through instead of returning null
+test('autodetectSignature() handles signed digest files', async () => {
+	browser.downloads.download.resolves(5);
+	browser.downloads.search.resolves([{id: 5}]);
+	const entry = new DownloadListItem(helpers.testDownloadItem);
+	const urls = [
+		new URL('https://host.io/path/sha1sums.gpg'),
+		new URL('https://host.io/path/f.ext'),
+		new URL('https://host.io/path/sha1sums'),
+	];
+
+	let res = await vd.autodetectSignature('sha1sums', urls, entry, constants.SignedData.digest);
+	expect(res).toEqual({id: 5});
 });

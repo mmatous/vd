@@ -58,8 +58,8 @@ export async function getDigestUrls(fileHref, urls, useRegexList = true) {
 			return lookup;
 		}
 	}
-	const singleFileSums = parsing.matchFileSumsLinks(fileHref, urls);
-	return singleFileSums.length != 0 ? singleFileSums : parsing.matchAgregatedSumsLinks(urls);
+	const singleFileSums = parsing.filterFileSumsLinks(fileHref, urls);
+	return singleFileSums.length != 0 ? singleFileSums : parsing.filterAgregatedSumsLinks(urls);
 }
 
 export function handleInstalled() {
@@ -89,36 +89,36 @@ export function registerDownload(downloadItem) {
 	return downloadList.createEntry(downloadItem);
 }
 
-export async function downloadSignatureForEntry(entry, signatureUrl) {
+export async function downloadSignatureForEntry(entry, signatureUrl, signedDataKind) {
 	const sigDownloadItem = await browserDownloadFile(signatureUrl);
-	entry.setSignatureFile(sigDownloadItem);
+	entry.setSignatureFile(sigDownloadItem, signedDataKind);
 	return sigDownloadItem;
 }
 
 export async function downloadDigestForEntry(entry, digestUrl) {
 	const digestDownloadItem = await browserDownloadFile(digestUrl);
 	entry.setDigestFile(digestDownloadItem);
+	return digestDownloadItem;
 }
 
-export async function autodetectSignature(filename, urls, entry) {
+export async function autodetectSignature(filename, urls, entry, signedDataKind) {
 	const signatureUrls = parsing.filterSignatureLinks(filename, urls);
 	const signatureUrl = selectSignature(signatureUrls);
 	if (!signatureUrl) {
-		console.info(`No viable signature found for ${entry.inputFile} (${entry.id})`);
+		console.info(`No viable signature found for ${entry.inputFile}`);
 		return null;
 	}
-	let sigDownloadItem = await downloadSignatureForEntry(entry, signatureUrl);
-	return sigDownloadItem.id;
+	return downloadSignatureForEntry(entry, signatureUrl, signedDataKind);
 }
 
-async function autodetectDigest(filename, urls, entry) {
+export async function autodetectDigest(filename, urls, entry) {
 	const digestUrls = await getDigestUrls(filename, urls, true); // todo: load from settings
-	const digest = selectDigest(digestUrls);
-	if (!digest) {
-		console.info(`No viable digest found for ${entry.inputFile} (${entry.id})`);
-		return;
+	const digestUrl = selectDigest(digestUrls);
+	if (!digestUrl) {
+		console.info(`No viable digest found for ${entry.inputFile}`);
+		return null;
 	}
-	await downloadDigestForEntry(entry, digest);
+	return downloadDigestForEntry(entry, digestUrl);
 }
 
 export async function handleDownloadCreated(downloadItem) {
@@ -132,9 +132,13 @@ export async function handleDownloadCreated(downloadItem) {
 		const filename = parsing.getFilename(downloadItem.url);
 		const urls = parsing.getSameOriginLinks(dirListingHtml, fileDir);
 
-		const signature = await autodetectSignature(filename, urls, entry);
-		if (!signature) {
-			await autodetectDigest(filename, urls, entry);
+		const signatureItem = await autodetectSignature(filename, urls, entry, constants.SignedData.data);
+		if (!signatureItem) {
+			const digestItem = await autodetectDigest(filename, urls, entry);
+			if (digestItem) {
+				const digestFilename = parsing.getFilename(digestItem.url);
+				await autodetectSignature(digestFilename, urls, entry, constants.SignedData.digest);
+			}
 		}
 		return entry;
 	} catch (e) {

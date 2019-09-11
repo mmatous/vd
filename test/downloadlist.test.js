@@ -237,7 +237,6 @@ test('serialize() returns object for consumption by vd-verifier (detached signat
 	expect(res['original-filename']).toEqual(downloadListItemInitial.originalFilename);
 	expect(res['input-file']).toEqual(downloadListItemInitial.inputFile);
 	expect(res['signature-file']).toEqual(helpers.testSigItem.filename);
-	expect(Object.keys(res).length).toEqual(3);
 });
 
 test('serialize() throws if no field for verification present', () => {

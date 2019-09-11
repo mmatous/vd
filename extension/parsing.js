@@ -59,20 +59,20 @@ function matchLinks(pattern, urls) {
 	return matched;
 }
 
-export function matchFileSumsLinks(filename, urls) {
+export function filterFileSumsLinks(filename, urls) {
 	const fileSumsRe = '^' + filename
-		+ '(?:.sha(?:512|256|1)|.digests|.hash.txt)(?!.asc|.pgp|.sig|.sign)$';
+		+ '(?:.sha(?:512|256|1)|.digests|.hash.txt)(?!.asc|.pgp|.sig|.sign|.gpg)$';
 	const re = new RegExp(fileSumsRe, 'i');
 	return matchLinks(re, urls);
 }
 
-export function matchAgregatedSumsLinks(urls) {
-	const agregatedSumsRe = /^(?:sha(?:512|256|1))sum(?!.*.asc|.*.pgp|.*.sig|.*.sign)/i;
+export function filterAgregatedSumsLinks(urls) {
+	const agregatedSumsRe = /^(?:sha(?:512|256|1))sum(?!.*.asc|.*.pgp|.*.sig|.*.sign|.*.gpg)/i;
 	return matchLinks(agregatedSumsRe, urls);
 }
 
 export function filterSignatureLinks(filename, urls) {
-	const signatureRe = '^' + filename + '(?:.sig|.asc|.pgp)$';
+	const signatureRe = '^' + filename + '(?:.sig|.asc|.pgp|.gpg)$';
 	const re = new RegExp(signatureRe, 'i');
 	return matchLinks(re, urls);
 }
