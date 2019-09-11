@@ -1,27 +1,30 @@
 <!DOCTYPE html>
 
 <html>
-	<head>
-		<meta charset="utf-8">
-		<link rel="stylesheet" href="../3rdparty/TinyWebEx/AutomaticSettings/css/photonOptions.css">
-		<script type="module" src="vd-options.js"></script>
-	</head>
-	<body>
-		<fieldset>
-			<legend>Verifier options</legend>
-			<button id="testVerifier" name="testVerifier">Test</button>
-			<button id="downloadVerifier" name="downloadVerifier">Download latest</button><br><br>
-			<output id="testResult" name="testResult" for="testVerifier"></output><br>
-			<output id="latestVersion" name="latestVersion"></output>
-		</fieldset>
-		<hr>
-		<fieldset>
-			<legend>Regex list
-				<sup id="list-guide">
-					<a href="https://github.com/mmatous/vd/wiki/Regex-list" rel="noopener noreferrer" target="_blank">?</a>
-				</sup>
-			</legend>
-			<textarea class="setting save-on-input" cols="80" id="regex-list" rows="20"></textarea>
-		</fieldset>
-	</body>
+
+<head>
+	<meta charset="utf-8">
+	<!-- bullet list not working if included
+	<link rel="stylesheet" href="../3rdparty/TinyWebEx/AutomaticSettings/css/photonOptions.css">
+	-->
+	<script type="module" src="vd-options.js"></script>
+</head>
+
+<body>
+	<fieldset>
+		<legend>Verifier options</legend>
+		<button id="testVerifier" name="testVerifier">Test</button>
+		<button id="downloadVerifier" name="downloadVerifier">Download latest</button><br><br>
+		<output id="testResult" name="testResult" for="testVerifier"></output><br>
+		<output id="latestVersion" name="latestVersion"></output>
+	</fieldset>
+	<hr>
+	<ul>
+		<li>You can edit file-to-digest matching for specific URLs 
+			<a href="regexlist.html" rel="noopener noreferrer" target="_blank">here</a>
+		</li>
+		<li>I2</li>
+	</ul>
+</body>
+
 </html>

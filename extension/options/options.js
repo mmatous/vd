@@ -33,6 +33,6 @@ export function handleDomContentLoaded() {
 	handleTestVerifierClick();	// act as if user pressed the test button
 
 	getLatestVersion().then((result) => {
-		document.getElementById('latestVersion').value = `Latest version: ${result}`;
+		document.getElementById('latestVersion').value = `Latest available version: ${result}`;
 	});
 }
