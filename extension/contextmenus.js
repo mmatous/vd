@@ -1,15 +1,14 @@
 'use strict';
 
 import { getFilename, getFileDir } from './parsing.js';
-import {
-	downloadDigestForEntry,
-	downloadList,
-	sendIfReady
-} from './vd.js';
+import * as vd from './vd.js';
+import { SignedData } from './constants.js';
 
 export const MenuType = Object.freeze({
-	selection: '0',
-	link: '1'
+	selectionDigest: '0',
+	linkDigest: '1',
+	linkSignature: '2',
+	linkSignedDigest: '3'
 });
 
 export function parseMenuIds(menuId) {
@@ -21,14 +20,23 @@ export function parseMenuIds(menuId) {
 
 export async function handleMenuClicked(info) {
 	const [parentId, childId] = parseMenuIds(info.menuItemId);
-	const entry = downloadList.getByDownloadId(childId);
-	if (parentId == MenuType.selection) {
+	const entry = vd.downloadList.getByDownloadId(childId);
+	switch (String(parentId)) {
+	case MenuType.selectionDigest:
 		entry.setDigest(info.selectionText);
-		sendIfReady(entry);
-	} else if (parentId == MenuType.link) {
-		await downloadDigestForEntry(entry, new URL(info.linkUrl));
-	} else {
-		throw Error(`invalid parent ID: ${parentId}`);
+		vd.sendIfReady(entry);
+		break;
+	case MenuType.linkDigest:
+		await vd.downloadDigestForEntry(entry, new URL(info.linkUrl));
+		break;
+	case MenuType.linkSignature:
+		await vd.downloadSignatureForEntry(entry, new URL(info.linkUrl), SignedData.data);
+		break;
+	case MenuType.linkSignedDigest:
+		await vd.downloadSignatureForEntry(entry, new URL(info.linkUrl), SignedData.digest);
+		break;
+	default:
+		throw Error(`Invalid parent ID: ${parentId}`);
 	}
 }
 
@@ -43,14 +51,26 @@ function onMenuCreated() {
 export function createContextMenuParents() {
 	browser.menus.create({
 		contexts: ['selection'],
-		id: MenuType.selection,
+		id: MenuType.selectionDigest,
 		title: 'Designate selection as hex-encoded digest'
 	}, onMenuCreated);
 
 	browser.menus.create({
 		contexts: ['link'],
-		id: MenuType.link,
+		id: MenuType.linkDigest,
 		title: 'Designate link location as digest file'
+	}, onMenuCreated);
+
+	browser.menus.create({
+		contexts: ['link'],
+		id: MenuType.linkSignature,
+		title: 'Designate link location as signature file for data'
+	}, onMenuCreated);
+
+	browser.menus.create({
+		contexts: ['link'],
+		id: MenuType.linkSignedDigest,
+		title: 'Designate link location as signature file for digest'
 	}, onMenuCreated);
 }
 
@@ -58,29 +78,50 @@ export function createContextMenuChildren(downloadId, downloadPath) {
 	const filename = getFilename(downloadPath);
 	const fileDir = getFileDir(downloadPath);
 
-	const selectionChildId = `${MenuType.selection}-${downloadId}`;
+	let childId = `${MenuType.selectionDigest}-${downloadId}`;
 	browser.menus.create({
 		contexts: ['selection'],
-		id: selectionChildId,
-		parentId: MenuType.selection,
+		id: childId,
+		parentId: MenuType.selectionDigest,
 		title: `${filename} @ ${fileDir}`
 	}, onMenuCreated);
 
-	const linkChildId = `${MenuType.link}-${downloadId}`;
+	childId = `${MenuType.linkDigest}-${downloadId}`;
 	browser.menus.create({
 		contexts: ['link'],
-		id: linkChildId,
-		parentId: MenuType.link,
+		id: childId,
+		parentId: MenuType.linkDigest,
+		title: `${filename} @ ${fileDir}`
+	}, onMenuCreated);
+
+	childId = `${MenuType.linkSignature}-${downloadId}`;
+	browser.menus.create({
+		contexts: ['link'],
+		id: childId,
+		parentId: MenuType.linkSignature,
+		title: `${filename} @ ${fileDir}`
+	}, onMenuCreated);
+
+	childId = `${MenuType.linkSignedDigest}-${downloadId}`;
+	browser.menus.create({
+		contexts: ['link'],
+		id: childId,
+		parentId: MenuType.linkSignedDigest,
 		title: `${filename} @ ${fileDir}`
 	}, onMenuCreated);
 }
 
 export function deleteContextMenu(downloadItemId) {
-	browser.menus.remove(`${MenuType.selection}-${downloadItemId}`)
+	browser.menus.remove(`${MenuType.selectionDigest}-${downloadItemId}`)
 		.then(() => { console.info(`Deleted selection menu entry for ${downloadItemId}`); })
 		.catch(() => { console.warn(`Unable to delete selection menu entry for ${downloadItemId}`); });
-
-	browser.menus.remove(`${MenuType.link}-${downloadItemId}`)
+	browser.menus.remove(`${MenuType.linkDigest}-${downloadItemId}`)
+		.then(() => { console.info(`Deleted link menu entry for ${downloadItemId}`); })
+		.catch(() => { console.warn(`Unable to delete link menu entry for ${downloadItemId}`); });
+	browser.menus.remove(`${MenuType.linkSignature}-${downloadItemId}`)
+		.then(() => { console.info(`Deleted link menu entry for ${downloadItemId}`); })
+		.catch(() => { console.warn(`Unable to delete link menu entry for ${downloadItemId}`); });
+	browser.menus.remove(`${MenuType.linkSignedDigest}-${downloadItemId}`)
 		.then(() => { console.info(`Deleted link menu entry for ${downloadItemId}`); })
 		.catch(() => { console.warn(`Unable to delete link menu entry for ${downloadItemId}`); });
 }

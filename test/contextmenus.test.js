@@ -21,26 +21,45 @@ test('selectDigest() returns first available option if possible', () => {
 	expect(child).toEqual(11);
 });
 
-test('createContextMenuParents() creates 2 parent menus', () => {
+test('createContextMenuParents() creates 4 parent menus', () => {
 	ctxMenus.createContextMenuParents();
-	expect(browser.menus.create.callCount).toBe(2);
+	expect(browser.menus.create.callCount).toBe(4);
 });
 
 test('deleteContextMenu() deletes a child menu from each parent', () => {
 	browser.menus.remove.resolves({});
+
 	ctxMenus.deleteContextMenu('1');
-	expect(browser.menus.remove.callCount).toBe(2);
+	expect(browser.menus.remove.callCount).toBe(4);
+});
+
+test('deleteContextMenu() handles invalid IDs', () => {
+	browser.menus.remove.rejects({});
+
+	// this is meant to say .not.toThrow() which jest only supports for mocks
+	expect(ctxMenus.deleteContextMenu('-999')).toBeUndefined();
+	expect(browser.menus.remove.callCount).toBe(4);
 });
 
 test('handleMenuClicked() throws if provided with invalid ID', async () => {
 	await expect(ctxMenus.handleMenuClicked({menuItemId: '999-0'}))
-		.rejects.toEqual(Error('invalid parent ID: 999'));
+		.rejects.toThrow('Invalid parent ID: 999');
 });
 
-test('handleMenuClicked() downloads digest file if link menu is clicked', async () => {
+test('handleMenuClicked() downloads file if link menu is clicked', async () => {
 	await ctxMenus.handleMenuClicked({
-		menuItemId: `${ctxMenus.MenuType.link}-0`,
+		menuItemId: `${ctxMenus.MenuType.linkDigest}-0`,
 		linkUrl: 'https://host.io/'
 	});
 	expect(downloadDigestForEntry.mock.calls.length).toBe(1);
+});
+
+test('createContextMenuChildren() creates 4 sub-menus', () => {
+	ctxMenus.createContextMenuChildren(0, '/a/path/to/file.ext');
+	expect(browser.menus.create.callCount).toBe(4);
+	expect(browser.menus.create.args[0][0]).toEqual(
+		expect.objectContaining({
+			title: 'file.ext @ /a/path/to/'
+		})
+	);
 });
