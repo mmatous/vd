@@ -60,7 +60,8 @@ export function signaturesToNotification(signatures) {
 export async function handleAppResponse(response, filePath) {
 	if (validResponse(response)) {
 		const signatureResult = signaturesToNotification(response.signatures);
-		const integrityResult = integrityToNotification(response.integrity);
+		let integrityResult = signatureResult.length === 0 ? '' : '\n';
+		integrityResult += integrityToNotification(response.integrity);
 		const notificationText =
 `${signatureResult}${integrityResult}
 ${filePath}`;
