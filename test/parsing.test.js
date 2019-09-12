@@ -9,10 +9,40 @@ test('getFilename() returns filename if present', () => {
 	expect(parsing.getFilename(u)).toBe('f1.txt');
 });
 
+test('getFilename() works for windows paths', () => {
+	const u = 'C:\\Users\\vd\\Downloads\\f1.txt';
+
+	expect(parsing.getFilename(u)).toBe('f1.txt');
+});
+
+test('getFilename() works for URLs with fragment', () => {
+	const u = 'https://www.host.io/downloads/f1.txt#annoyingFragment';
+
+	expect(parsing.getFilename(u)).toBe('f1.txt');
+});
+
 test('getFilename() returns empty string if not present', () => {
 	const u = 'https://www.host.io/downloads/';
 
 	expect(parsing.getFilename(u)).toBe('');
+});
+
+test('getFileDir() returns filename if present', () => {
+	const u = 'https://www.host.io/downloads/f1.txt';
+
+	expect(parsing.getFileDir(u)).toBe('https://www.host.io/downloads/');
+});
+
+test('getFileDir() converts windows paths', () => {
+	const u = 'C:\\Users\\vd\\Downloads\\f1.txt';
+
+	expect(parsing.getFileDir(u)).toBe('C:/Users/vd/Downloads/');
+});
+
+test('getFileDir() returns empty string if not present', () => {
+	const u = 'f1.ext';
+
+	expect(parsing.getFileDir(u)).toBe('');
 });
 
 // jest seems to sometimes match URLs incorrectly, hrefs are used instead

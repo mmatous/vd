@@ -2,12 +2,14 @@
 
 const parser = new DOMParser();
 
-export function getFilename(href) {
-	const lastSlash = href.lastIndexOf('/') + 1;
-	return href.slice(lastSlash);
+export function getFilename(filePath) {
+	filePath = filePath.replace(/\\/g, '/');
+	const lastSlash = filePath.lastIndexOf('/') + 1;
+	return filePath.slice(lastSlash).split('#')[0];
 }
 
 export function getFileDir(filePath) {
+	filePath = filePath.replace(/\\/g, '/');
 	const lastSlash = filePath.lastIndexOf('/') + 1;
 	return filePath.slice(0, lastSlash);
 }
