@@ -133,7 +133,8 @@ export async function handleDownloadCreated(downloadItem) {
 		const urls = parsing.getSameOriginLinks(dirListingHtml, fileDir);
 
 		const signatureItem = await autodetectSignature(filename, urls, entry, constants.SignedData.data);
-		if (!signatureItem) {
+		// temporary || until signatures are supported on Win
+		if (!signatureItem || navigator.platform.indexOf('Win') > -1) {
 			const digestItem = await autodetectDigest(filename, urls, entry);
 			if (digestItem) {
 				const digestFilename = parsing.getFilename(digestItem.url);
