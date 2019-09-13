@@ -17,7 +17,8 @@ export const Settings = Object.freeze({
 	notifyFail: 'notify-fail',
 	notifySuccess: 'notify-success',
 
-	regexList: 'regex-list'
+	digestRules: 'digest-rules',
+	signatureRules: 'sig-rules'
 });
 
 export const NATIVE_APP_ID = 'io.github.vd';

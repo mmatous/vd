@@ -104,24 +104,20 @@ test('cleanup() clears downloads even if file removal fails', async () => {
 	expect(browser.downloads.erase.args[0][0]).toEqual({ id: helpers.testDigestItem.id });
 });
 
-test('handleDownloadCreated() returns new entry with digest info if all successful', async () => {
+test('handleDownloadCreated() returns true if digest queued for download', async () => {
 	fetch.mockResponseOnce(helpers.testHtml);
-	browser.downloads.download.returns(Promise.resolve(helpers.testDigestItem.id));
-	browser.downloads.search.returns(Promise.resolve([helpers.testDigestItem]));
+	browser.downloads.download.resolves(helpers.testDigestItem.id);
+	browser.downloads.search.resolves([helpers.testDigestItem]);
 
 	const res = await vd.handleDownloadCreated(helpers.testDownloadItem);
-	expect(res).toEqual(expect.objectContaining(helpers.testDownloadListItem));
+	expect(res).toEqual(true);
 });
 
-test('handleDownloadCreated() returns undefined if no page to parse', async () => {
+test('handleDownloadCreated() returns false if no page to parse', async () => {
 	fetch.mockRejectOnce('dns fail');
-	browser.downloads.download.returns(Promise.resolve(helpers.testDownloadItem.id));
-	browser.downloads.search.returns(
-		Promise.resolve([helpers.testDownloadItem])
-	);
 
 	const res = await vd.handleDownloadCreated(helpers.testDownloadItem);
-	expect(res).toBe(undefined);
+	expect(res).toBe(false);
 });
 
 test('matchFromList() returns value matching regex key', async () => {

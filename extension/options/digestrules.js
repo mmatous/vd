@@ -5,7 +5,7 @@ import * as automaticSettings
 import { Settings } from '../constants.js';
 import * as options from './options.js';
 
-options.setOptionName(document, 'regex-list', Settings.regexList);
+options.setOptionName(document, 'digest-rules', Settings.digestRules);
 
 automaticSettings.setDefaultOptionProvider(addonSettings.getDefaultValue);
 automaticSettings.init();

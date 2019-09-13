@@ -18,13 +18,13 @@ export function shouldBeIgnored(downloadItem) {
 	return downloadItem.byExtensionId === 'vd@vd.io';
 }
 
-export async function matchFromList(fileUrl, list) {
+export async function matchFromList(fileHref, list) {
 	const pairings = list.split('\n');
 	for (let pairing of pairings) {
 		const p = pairing.split(' || ', 2);
 		const raw = utils.toRaw(p[0]);
 		const re = new RegExp(raw);
-		const matches = re.exec(fileUrl);
+		const matches = re.exec(fileHref);
 		if (matches) {
 			// start from 1, matches[0] is the full match
 			for (let group = 1; group < matches.length; group++) {
@@ -38,27 +38,22 @@ export async function matchFromList(fileUrl, list) {
 	return null;
 }
 
-async function regexListLookup(fileUrl) {
+async function rulesListLookup(fileHref, setting) {
 	try {
-		const regexList = await addonSettings.get(constants.Settings.regexList);
-		const lookup = await matchFromList(fileUrl, regexList);
+		const rulesList = await addonSettings.get(setting);
+		const lookup = await matchFromList(fileHref, rulesList);
 		if (lookup) {
-			return [ new URL(lookup) ];
+			return new URL(lookup);
 		}
 	} catch (err) {
-		console.error(`Regex list lookup error: ${err}`);
+		console.error(`Rules list lookup error: ${err}`);
 	}
 	return null;
 }
 
-export async function getDigestUrls(fileHref, urls, useRegexList = true) {
-	if (useRegexList) {
-		const lookup = await regexListLookup(fileHref);
-		if (lookup) {
-			return lookup;
-		}
-	}
-	const singleFileSums = parsing.filterFileSumsLinks(fileHref, urls);
+export async function getDigestUrls(fileHref, urls) {
+	const filename = parsing.getFilename(fileHref);
+	const singleFileSums = parsing.filterFileSumsLinks(filename, urls);
 	return singleFileSums.length != 0 ? singleFileSums : parsing.filterAgregatedSumsLinks(urls);
 }
 
@@ -111,8 +106,8 @@ export async function autodetectSignature(filename, urls, entry, signedDataKind)
 	return downloadSignatureForEntry(entry, signatureUrl, signedDataKind);
 }
 
-export async function autodetectDigest(filename, urls, entry) {
-	const digestUrls = await getDigestUrls(filename, urls, true); // todo: load from settings
+export async function autodetectDigest(fileHref, urls, entry) {
+	const digestUrls = await getDigestUrls(fileHref, urls);
 	const digestUrl = selectDigest(digestUrls);
 	if (!digestUrl) {
 		console.info(`No viable digest found for ${entry.inputFile}`);
@@ -121,30 +116,66 @@ export async function autodetectDigest(filename, urls, entry) {
 	return downloadDigestForEntry(entry, digestUrl);
 }
 
+async function tryLookups(fileHref, entry) {
+	const sigUrl = await rulesListLookup(fileHref, constants.Settings.signatureRules);
+	if (sigUrl) {
+		return downloadSignatureForEntry(entry, sigUrl, constants.SignedData.data);
+	} else {
+		const digestUrl = await rulesListLookup(fileHref, constants.Settings.digestRules);
+		if (digestUrl) {
+			return downloadDigestForEntry(entry, digestUrl);
+		}
+	}
+	return null;
+}
+
+async function tryAutodetect(filename, fileDir, entry) {
+	const dirListingHtml = await utils.get(fileDir);
+	const urls = parsing.getSameOriginLinks(dirListingHtml, fileDir);
+
+	const signatureItem = await autodetectSignature(filename, urls, entry, constants.SignedData.data);
+	// temporary && until signatures are supported on Win
+	if (signatureItem && navigator.platform.indexOf('Win') < 0) {
+		return true;
+	}
+	const digestItem = await autodetectDigest(filename, urls, entry);
+	if (digestItem) {
+		const digestFilename = parsing.getFilename(digestItem.url);
+		await autodetectSignature(digestFilename, urls, entry, constants.SignedData.digest);
+		return true;
+	}
+	return false;
+}
+
 export async function handleDownloadCreated(downloadItem) {
 	if (shouldBeIgnored(downloadItem)) {
 		return;
 	}
 	const entry = registerDownload(downloadItem);
-	try {
-		const fileDir = parsing.getDirListingUrl(downloadItem.url);
-		const dirListingHtml = await utils.get(fileDir);
-		const filename = parsing.getFilename(downloadItem.url);
-		const urls = parsing.getSameOriginLinks(dirListingHtml, fileDir);
 
-		const signatureItem = await autodetectSignature(filename, urls, entry, constants.SignedData.data);
-		// temporary || until signatures are supported on Win
-		if (!signatureItem || navigator.platform.indexOf('Win') > -1) {
-			const digestItem = await autodetectDigest(filename, urls, entry);
-			if (digestItem) {
-				const digestFilename = parsing.getFilename(digestItem.url);
-				await autodetectSignature(digestFilename, urls, entry, constants.SignedData.digest);
-			}
+	let res = null;
+	try {
+		res = await tryLookups(downloadItem.url, entry);
+		if (res) {
+			return true;
 		}
-		return entry;
-	} catch (e) {
-		await handleError(e, downloadItem);
+	} catch (err) {
+		await handleError(err, downloadItem);
 	}
+
+	const filename = parsing.getFilename(downloadItem.url);
+	const fileDir = parsing.getDirListingUrl(downloadItem.url);
+	try {
+		res = await tryAutodetect(filename, fileDir, entry);
+		if (res) {
+			return true;
+		}
+	} catch (err) {
+		await handleError(err, downloadItem);
+	}
+
+	console.info(`No verification files detected for ${downloadItem.url}`);
+	return false;
 }
 
 export async function browserDownloadFile(url) {

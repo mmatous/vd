@@ -80,7 +80,7 @@ export class DownloadListItem {
 		this.id = downloadItem.id;
 		this.inputFile = downloadItem.filename; //is absolute path
 		this.inputFileState = DownloadState.downloading;
-		this.originalFilename = getFilename(downloadItem.url);
+		this.originalFilename = decodeURIComponent(getFilename(downloadItem.url));
 
 		this.signatureId = null;
 		this.signatureFile = null;
@@ -145,6 +145,7 @@ export class DownloadListItem {
 	}
 
 	setDigest(hexString) {
+		hexString = hexString.trim();
 		if (!isDigestString(hexString)) {
 			const line = `${hexString} is not a valid digest string`;
 			console.info(line);

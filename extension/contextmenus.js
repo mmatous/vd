@@ -43,8 +43,6 @@ export async function handleMenuClicked(info) {
 function onMenuCreated() {
 	if (browser.runtime.lastError) {
 		console.warn(`Error creating menu item: ${browser.runtime.lastError}`);
-	} else {
-		console.info('Menu item created successfully');
 	}
 }
 
