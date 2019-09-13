@@ -19,14 +19,23 @@
 		<output id="latestVersion" name="latestVersion"></output>
 	</fieldset>
 	<hr>
-	<ul>
-		<li>You can edit file-to-digest matching for specific URLs 
-			<a href="digestrules.html" rel="noopener noreferrer" target="_blank">here</a>
-		</li>
-		<li>You can edit file-to-signature matching for specific URLs 
-			<a href="sigrules.html" rel="noopener noreferrer" target="_blank">here</a>
-		</li>
-	</ul>
+	<fieldset>
+		<legend>Matching rules</legend>
+		<ul>
+			<li>You can edit file-to-digest matching for specific URLs 
+				<a href="digestrules.html" rel="noopener noreferrer" target="_blank">here</a>
+			</li>
+			<li>You can edit file-to-signature matching for specific URLs 
+				<a href="sigrules.html" rel="noopener noreferrer" target="_blank">here</a>
+			</li>
+		</ul>
+	</fieldset>
+	<hr>
+	<fieldset>
+		<legend>Other</legend>
+		<input class="setting save-on-change" id="use-autodetect" type="checkbox">
+		<label for="use-autodetect">Try to detect digests/signatures automatically</label>
+	</fieldset>
 </body>
 
 </html>

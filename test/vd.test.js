@@ -8,6 +8,9 @@ import * as vd from '../extension/vd.js';
 import * as helpers from './helpers.js';
 import * as constants from '../extension/constants.js';
 
+import { get } from '../extension/3rdparty/TinyWebEx/AddonSettings/AddonSettings.js';
+jest.mock('../extension/3rdparty/TinyWebEx/AddonSettings/AddonSettings.js');
+
 jest.useFakeTimers();
 
 beforeAll(() => {
@@ -106,6 +109,7 @@ test('cleanup() clears downloads even if file removal fails', async () => {
 
 test('handleDownloadCreated() returns true if digest queued for download', async () => {
 	fetch.mockResponseOnce(helpers.testHtml);
+	get.mockResolvedValue(true);
 	browser.downloads.download.resolves(helpers.testDigestItem.id);
 	browser.downloads.search.resolves([helpers.testDigestItem]);
 
@@ -115,6 +119,7 @@ test('handleDownloadCreated() returns true if digest queued for download', async
 
 test('handleDownloadCreated() returns false if no page to parse', async () => {
 	fetch.mockRejectOnce('dns fail');
+	get.mockResolvedValue(true);
 
 	const res = await vd.handleDownloadCreated(helpers.testDownloadItem);
 	expect(res).toBe(false);

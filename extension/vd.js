@@ -163,6 +163,8 @@ export async function handleDownloadCreated(downloadItem) {
 		await handleError(err, downloadItem);
 	}
 
+	const useAutodetect = await addonSettings.get(constants.Settings.useAutodetect);
+	if (!useAutodetect) { return false; }
 	const filename = parsing.getFilename(downloadItem.url);
 	const fileDir = parsing.getDirListingUrl(downloadItem.url);
 	try {
