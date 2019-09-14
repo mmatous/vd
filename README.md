@@ -16,11 +16,11 @@ No.
 
 There is no way that is both standardized and widespread to store/transmit digests or
 signatures. Therefore there is some guesswork involved as to what data belongs together.
-This creates room for false positives or false negatives.
+This creates room for false negatives or (even though extremely unlikely) false positives.
 This extension is mostly here to help with scenarios where you would not do any checking at all
 or where you simply don't care that much.
 
-__Use your regular tools for anything mission critical.__
+__Use your regular tools for anything mission-critical.__
 
 ## Usage
 
@@ -61,14 +61,14 @@ storage—settings persistence
 
 ## Build
 
-```bash
+```
 yarn install
 yarn build
 ```
 
 ## Test
 
-```bash
+```
 yarn lint
 yarn test
 ```
@@ -93,11 +93,13 @@ No plans for porting right now.
 
 ### Software used
 
-Libraries from the awesome [TinyWebEx](https://github.com/TinyWebEx) project by [rugk](https://github.com/rugk):
+Libraries from the [TinyWebEx](https://github.com/TinyWebEx) project by [rugk](https://github.com/rugk):
 
 - AddonSettings. [MIT](https://github.com/TinyWebEx/AddonSettings/blob/b5e57fc456395613f6e1e5825c0ab670528eb552/LICENSE.md) license.
 
 - AutomaticSettings. [MIT](https://github.com/TinyWebEx/AutomaticSettings/blob/0b630205ec0aa78628e95ed97137776e399df632/LICENSE.md) license.
+
+- Localizer [MIT](https://github.com/TinyWebEx/Localizer/blob/da1f4c3edc616655a360b2a79b79514d8c077b55/README.md) license.
 
 ### License
 

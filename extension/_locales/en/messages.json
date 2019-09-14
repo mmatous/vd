@@ -1,4 +1,8 @@
 {
+    "autoDetectLabel": {
+        "message": "Try to detect digests/signatures automatically",
+        "description": "Checkbox label in settings"
+    },
     "ctxMenuDigestDirect": {
         "message": "Designate selection as hex-encoded digest",
         "description": "Right-click sub menu if text is selected"
@@ -15,6 +19,30 @@
         "message": "Designate link location as signature file for digest",
         "description": "Right-click sub menu if link is clicked"
     },
+    "digestMatching": {
+        "message": "You can edit file-to-digest matching for specific URLs $LINKTEXT$",
+        "description": "Shown in HTML settings page",
+        "placeholders": {
+            "linktext": {
+                "content": "$1",
+                "example": "<a href=\"mozextension://UUID/suboptions.html\">here</a>"
+            }
+        }
+    },
+    "digestRuleset": {
+        "message": "Digest ruleset$SUPERSCRIPT$",
+        "description": "Shown in HTML settings page",
+        "placeholders": {
+            "superscript": {
+                "content": "$1",
+                "example": "<sup><a href=\"https://github.com/somewhere/wiki\">?</a></sup>"
+            }
+        }
+    },
+    "downloadLatest": {
+        "message": "Download latest",
+        "description": "Button in settings, opens github releases"
+    },
     "errorEncountered": {
         "message": "❗ Error encountered",
         "description": "Title of notification if errors are encountered during verification"
@@ -22,6 +50,10 @@
     "extensionDescription": {
         "message": "Verify downloaded files using their digests and signature files.",
         "description": "Extension description displayed in browser UI"
+    },
+    "here": {
+        "message": "here",
+        "description": "Continued from digestMatching and signaturesMatching"
     },
     "integrityFailed": {
         "message": "❌ Integrity check failed",
@@ -51,6 +83,14 @@
             }
         }
     },
+    "matchingRules": {
+        "message": "Matching rules",
+        "description": "Section label in settings"
+    },
+    "otherSettings": {
+        "message": "Other",
+        "description": "Section label in settings"
+    },
     "signatureError": {
         "message": "❗ Error checking signatures: $ERR$",
         "description": "Possible part of results notification",
@@ -65,6 +105,16 @@
         "message": "✅ Signature OK",
         "description": "Possible part of results notification"
     },
+    "signaturesMatching": {
+        "message": "You can edit file-to-signature matching for specific URLs $LINKTEXT$",
+        "description": "Shown in HTML settings page",
+        "placeholders": {
+            "linktext": {
+                "content": "$1",
+                "example": "<a href=\"mozextension://UUID/suboptions.html\">here</a>"
+            }
+        }
+    },
     "signaturesProcessed": {
         "message": "Processed $NUM$ signature(s):",
         "description": "Possible part of results notification, always > 0",
@@ -74,11 +124,28 @@
                 "example": "1"
             }
         }
-    }
-    ,
+    },
+    "signaturesRuleset": {
+        "message": "Signatures ruleset$SUPERSCRIPT$",
+        "description": "Shown in HTML settings page",
+        "placeholders": {
+            "superscript": {
+                "content": "$1",
+                "example": "<sup><a href=\"https://github.com/somewhere/wiki\">?</a></sup>"
+            }
+        }
+    },
+    "testVerifier": {
+        "message": "Test",
+        "description": "Button in settings, tests communication with native app"
+    },
     "verificationResults": {
         "message": "Verification results",
         "description": "Title of notification if verification does not encounter errors"
+    },
+    "verifierOptions": {
+        "message": "Verifier options",
+        "description": "Section label in settings"
     },
     "versionResponse": {
         "message": "Setup OK, version: $VERSION$",
