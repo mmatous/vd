@@ -167,7 +167,7 @@ test('markDownloaded() throws if provided with invalid ID', () => {
 
 	expect(() => {
 		entry.markDownloaded(-1);
-	}).toThrow('invalid id to be marked downloaded -1 for /a/verifiable.file (1)');
+	}).toThrow('Invalid id to be marked downloaded -1 for /a/verifiable.file (1)');
 });
 
 test('readyForVerification() returns true if both file and digest finished downloading', () => {

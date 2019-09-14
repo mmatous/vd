@@ -25,14 +25,14 @@ export function integrityToNotification(integrity) {
 	if (integrity.Ok) {
 		switch (integrity.Ok) {
 		case 'PASS':
-			return '✅ Integrity check passed';
+			return browser.i18n.getMessage('integrityPassed');
 		case 'UNTESTED':
 			return '';
 		default:
-			return '❌ Integrity check failed';
+			return browser.i18n.getMessage('integrityFailed');
 		}
 	} else {
-		return `❗ Integrity check error: ${integrity.Err}`;
+		return browser.i18n.getMessage('integrityError', integrity.Err);
 	}
 }
 
@@ -41,11 +41,11 @@ export function signaturesToNotification(signatures) {
 		if (signatures.Ok.length === 0) {
 			return '';
 		}
-		let result = `Processed ${signatures.Ok.length} signature(s):`;
+		let result = browser.i18n.getMessage('signaturesProcessed', signatures.Ok.length);
 		for (let signature of signatures.Ok) {
 			switch (signature) {
 			case 'PASS':
-				result += '\n\t✅ Signature OK';
+				result += '\n\t' + browser.i18n.getMessage('signatureOk');
 				break;
 			default:
 				result += '\n\t❌' + signature;
@@ -53,7 +53,7 @@ export function signaturesToNotification(signatures) {
 		}
 		return result;
 	} else {
-		return `❗ Error checking signatures: ${signatures.Err}`;
+		return browser.i18n.getMessage('signatureError', signatures.Err);
 	}
 }
 
@@ -65,9 +65,9 @@ export async function handleAppResponse(response, filePath) {
 		const notificationText =
 `${signatureResult}${integrityResult}
 ${filePath}`;
-		await utils.notifyUser(constants.Preset.results, notificationText);
+		await utils.notifyUser(browser.i18n.getMessage('verificationResults'), notificationText);
 	} else {
-		throw Error(`invalid response ${JSON.stringify(response)}`);
+		throw Error(`Invalid response ${JSON.stringify(response)}`);
 	}
 }
 
@@ -78,6 +78,6 @@ export async function sendToNativeApp(entry) {
 		console.info(`Native app responded: ${JSON.stringify(response, null, '\t')}`);
 		await handleAppResponse(response, entry.inputFile);
 	} catch (e) {
-		throw Error(`error communicating with vd-verifier: ${e.message}`);
+		throw Error(`Error communicating with vd-verifier: ${e.message}`);
 	}
 }

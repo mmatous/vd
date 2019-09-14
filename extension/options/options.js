@@ -20,11 +20,10 @@ export function downloadVerifier() {
 
 export function handleTestVerifierClick() {
 	versionRequest().then((version) => {
-		document.getElementById('testResult').value = `Setup OK, version: ${version}`;
+		document.getElementById('testResult').value = browser.i18n.getMessage('versionResponse', version);
 	}).catch((err) => {
 		console.error(`vd-verifier responded: ${err.message}`);
-		const errResponse = `Something went wrong.
-			Please ensure you have the latest version of vd-verifier installed correctly.`;
+		const errResponse = browser.i18n.getMessage('versionRequestError');
 		document.getElementById('testResult').value = errResponse;
 	});
 }
@@ -33,6 +32,6 @@ export function handleDomContentLoaded() {
 	handleTestVerifierClick();	// act as if user pressed the test button
 
 	getLatestVersion().then((result) => {
-		document.getElementById('latestVersion').value = `Latest available version: ${result}`;
+		document.getElementById('latestVersion').value = browser.i18n.getMessage('latestVersion', result);
 	});
 }

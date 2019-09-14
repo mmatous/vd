@@ -50,25 +50,25 @@ export function createContextMenuParents() {
 	browser.menus.create({
 		contexts: ['selection'],
 		id: MenuType.selectionDigest,
-		title: 'Designate selection as hex-encoded digest'
+		title:  browser.i18n.getMessage('ctxMenuDigestDirect')
 	}, onMenuCreated);
 
 	browser.menus.create({
 		contexts: ['link'],
 		id: MenuType.linkDigest,
-		title: 'Designate link location as digest file'
+		title: browser.i18n.getMessage('ctxMenuDigestLink')
 	}, onMenuCreated);
 
 	browser.menus.create({
 		contexts: ['link'],
 		id: MenuType.linkSignature,
-		title: 'Designate link location as signature file for data'
+		title: browser.i18n.getMessage('ctxMenuSig')
 	}, onMenuCreated);
 
 	browser.menus.create({
 		contexts: ['link'],
 		id: MenuType.linkSignedDigest,
-		title: 'Designate link location as signature file for digest'
+		title: browser.i18n.getMessage('ctxMenuSigDigest')
 	}, onMenuCreated);
 }
 

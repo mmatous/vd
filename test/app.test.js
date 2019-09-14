@@ -34,52 +34,19 @@ test('validResponse() returns false if appResponse has missing fields', () => {
 	expect(res).toBeFalsy();
 });
 
-test('handleAppResponse() results in success notification if integrity passes', async () => {
+test('handleAppResponse() results in notification of any kind if response valid', async () => {
 	get.mockResolvedValue(true);
 	browser.notifications.create.resolves(true);
 	const appResponse = helpers.createAppResponse('Ok', 'PASS', 'Ok', []);
 
 	await app.handleAppResponse(appResponse, 'testedFile');
 	expect(browser.notifications.create.callCount).toBe(1);
-	expect(browser.notifications.create.args[0][0]).toEqual(
-		{
-			message: '✅ Integrity check passed\ntestedFile',
-			title: 'Verification results',
-			type: 'basic'
-		}
-	);
 });
 
-test('handleAppResponse() results in failure notification if verification fails', async () => {
-	get.mockResolvedValue(true);
-	browser.notifications.create.resolves(true);
-	const appResponse = helpers.createAppResponse('Ok', 'FAIL', 'Ok', []);
+test('handleAppResponse() rejects on invalid response', async () => {
+	const appResponse = { not: 'really', valid: true };
 
-	await app.handleAppResponse(appResponse, 'testedFile');
-	expect(browser.notifications.create.callCount).toBe(1);
-	expect(browser.notifications.create.args[0][0]).toEqual(
-		{
-			message: '❌ Integrity check failed\ntestedFile',
-			title: 'Verification results',
-			type: 'basic'
-		}
-	);
-});
-
-test('handleAppResponse() results in error notification if an error occurs', async () => {
-	get.mockResolvedValue(true);
-	browser.notifications.create.resolves(true);
-	const appResponse = helpers.createAppResponse('Err', 'unable to open file', 'Ok', []);
-
-	await app.handleAppResponse(appResponse, 'testedFile');
-	expect(browser.notifications.create.callCount).toBe(1);
-	expect(browser.notifications.create.args[0][0]).toEqual(
-		{
-			message: '❗ Integrity check error: unable to open file\ntestedFile',
-			title: 'Verification results',
-			type: 'basic'
-		}
-	);
+	await expect(app.handleAppResponse(appResponse, 'testedFile')).rejects.toThrow('Invalid response ');
 });
 
 test('versionRequest() sends message to app in correct format', async () => {

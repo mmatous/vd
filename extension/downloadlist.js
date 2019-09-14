@@ -1,6 +1,5 @@
 'use strict;';
 
-import { Preset } from './constants.js';
 import { getFilename } from './parsing.js';
 import { isDigestString, notifyUser } from './utils.js';
 
@@ -121,7 +120,7 @@ export class DownloadListItem {
 			this.signatureState = DownloadState.downloaded;
 			break;
 		default:
-			throw Error(`invalid id to be marked downloaded ${id} for ${this.inputFile} (${this.id})`);
+			throw Error(`Invalid id to be marked downloaded ${id} for ${this.inputFile} (${this.id})`);
 		}
 	}
 
@@ -149,7 +148,7 @@ export class DownloadListItem {
 		if (!isDigestString(hexString)) {
 			const line = `${hexString} is not a valid digest string`;
 			console.info(line);
-			notifyUser(Preset.error, line);
+			notifyUser(browser.i18n.getMessage('errorEncountered'), line);
 			return false;
 		}
 		this.digestFile = null;

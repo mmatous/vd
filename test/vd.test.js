@@ -55,7 +55,7 @@ test('browserDownloadFile() rejects on rejected downloads', async () => {
 	browser.downloads.download.rejects('403');
 
 	await expect(vd.browserDownloadFile(new URL('https://host.io/path/v.file')))
-		.rejects.toEqual(Error('unable to download https://host.io/path/v.file: 403'));
+		.rejects.toThrow('Unable to download https://host.io/path/v.file: 403');
 });
 
 test('shouldBeIgnored() returns true any download by vd@vd.io', () => {

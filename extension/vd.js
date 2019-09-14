@@ -59,9 +59,8 @@ export async function getDigestUrls(fileHref, urls) {
 
 export function handleInstalled() {
 	app.versionRequest().catch(() => {
-		const err = `vd-verifier is not working correctly.
-Please ensure you have the latest version from ${constants.VD_VERIFIER_URL}`;
-		utils.notifyUser(constants.Preset.error, err);
+		const err = browser.i18n.getMessage('versionRequestError');
+		utils.notifyUser(browser.i18n.getMessage('errorEncountered'), err);
 	});
 }
 
@@ -189,7 +188,7 @@ export async function browserDownloadFile(url) {
 		let dItem = await browser.downloads.search({id: downloadId});
 		return dItem[0];
 	} catch (e) {
-		throw Error(`unable to download ${url.href}: ${e}`);
+		throw Error(`Unable to download ${url.href}: ${e}`);
 	}
 }
 
@@ -197,7 +196,7 @@ async function handleError(err, entry) {
 	console.error(`${err.message}`);
 	await cleanup(entry.digestId, entry.digestState);
 	await cleanup(entry.signatureId, entry.signatureState);
-	await utils.notifyUser(constants.Preset.error, err.message);
+	await utils.notifyUser(browser.i18n.getMessage('errorEncountered'), err.message);
 }
 
 async function handleDownloadFinished(delta) {

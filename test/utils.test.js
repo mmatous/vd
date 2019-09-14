@@ -38,15 +38,15 @@ test('get() returns text response correctly', async () => {
 
 test('get() rejects on non-ok status code', async () => {
 	fetch.mockResponseOnce('fail', { status: 404 });
-	await expect(util.get('https://host.io')).rejects.toEqual(
-		Error('failed fetch() for https://host.io: Not Found')
+	await expect(util.get('https://host.io')).rejects.toThrow(
+		'Failed fetch() for https://host.io: Not Found'
 	);
 });
 
 test('get() rejects on fetch rejection', async () => {
 	fetch.mockRejectOnce('dns fail');
 	await expect(util.get('https://host.io'))
-		.rejects.toEqual(Error('failed fetch() for https://host.io: dns fail'));
+		.rejects.toThrow('Failed fetch() for https://host.io: dns fail');
 });
 
 test('toRaw() return raw string without double escapes', () => {

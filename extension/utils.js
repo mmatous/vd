@@ -17,30 +17,30 @@ export async function boundedFetch(url) {
 
 export async function get(url) {
 	const response = await boundedFetch(url).catch(err => {
-		throw Error(`failed fetch() for ${url}: ${err}`);
+		throw Error(`Failed fetch() for ${url}: ${err}`);
 	});
 	if (response.ok) {
 		return response.text();
 	} else {
-		throw Error(`failed fetch() for ${url}: ${response.statusText}`);
+		throw Error(`Failed fetch() for ${url}: ${response.statusText}`);
 	}
 }
 
 export async function getJson(url) {
 	const response = await boundedFetch(url).catch(err => {
-		throw Error(`failed fetch() for ${url}: ${err}`);
+		throw Error(`Failed fetch() for ${url}: ${err}`);
 	});
 	if (response.ok) {
 		return response.json();
 	} else {
-		throw Error(`failed fetch() for ${url}: ${response.statusText}`);
+		throw Error(`Failed fetch() for ${url}: ${response.statusText}`);
 	}
 }
 
-export async function notifyUser(preset, message) {
+export async function notifyUser(title, message) {
 	const options = {
 		message: message,
-		title: preset.title,
+		title: title,
 		type: 'basic'
 	};
 	await browser.notifications.create(options);
