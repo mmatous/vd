@@ -18,7 +18,7 @@ export function shouldBeIgnored(downloadItem) {
 	return downloadItem.byExtensionId === 'vd@vd.io';
 }
 
-export async function matchFromList(fileHref, list) {
+export async function matchHref(fileHref, list) {
 	const pairings = list.split('\n');
 	for (let pairing of pairings) {
 		const p = pairing.split(' || ', 2);
@@ -41,7 +41,7 @@ export async function matchFromList(fileHref, list) {
 async function rulesListLookup(fileHref, setting) {
 	try {
 		const rulesList = await addonSettings.get(setting);
-		const lookup = await matchFromList(fileHref, rulesList);
+		const lookup = await matchHref(fileHref, rulesList);
 		if (lookup) {
 			return new URL(lookup);
 		}
@@ -205,10 +205,10 @@ async function handleDownloadFinished(delta) {
 		return;
 	}
 	entry.markDownloaded(delta.id);
-	await sendIfReady(entry);
+	await sendReady(entry);
 }
 
-export async function sendIfReady(entry) {
+export async function sendReady(entry) {
 	if (!entry.readyForVerification()) {
 		return false;
 	}
@@ -224,15 +224,11 @@ export async function sendIfReady(entry) {
 }
 
 async function handleDownloadInterrupted(delta) {
-	if (downloadList.hasDigest(delta.id)) {
-		console.warn(`Digest download ${delta.id} interrupted, deleting entries`);
-	} else if (downloadList.hasRegularDownload(delta.id)) {
-		console.warn(`Download ${delta.id} interrupted, deleting entries`);
-	} else {
+	const entry = downloadList.getByAnyId(delta.id);
+	if (!entry) {
 		console.warn(`Unrecorded download (${delta.id}) interrupted`);
 		return;
 	}
-	const entry = downloadList.getByAnyId(delta.id);
 	await cleanup(entry.digestId, entry.digestState);
 	await cleanup(entry.signatureId, entry.signatureState);
 	ctxMenus.deleteContextMenu(entry.id);

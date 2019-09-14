@@ -1,11 +1,30 @@
 'use strict';
 
-import * as options from '../extension/options/options.js';
+import * as browser from 'sinon-chrome/webextensions';
 import * as helpers from './helpers.js';
+import * as options from '../extension/options/options.js';
 
-test('setOptionName() sets name attribute to element', () => {
-	const doc = (new DOMParser()).parseFromString(helpers.testHtml, 'text/html');
+beforeAll(() => {
+	window.browser = browser;
+});
 
-	options.setOptionName(doc, 'testId', 'testName');
-	expect(doc.getElementById('testId').name).toEqual('testName');
+describe('downloadVerifier()', () => {
+	beforeEach(() => {
+		browser.flush();
+	});
+
+	test('does not throw on rejection', async () => {
+		browser.tabs.create.rejects();
+
+		await expect(options.downloadVerifier()).toBeUndefined();
+	});
+});
+
+describe('setOptionName()', () => {
+	test('sets name attribute to element', () => {
+		const doc = (new DOMParser()).parseFromString(helpers.testHtml, 'text/html');
+
+		options.setOptionName(doc, 'testId', 'testName');
+		expect(doc.getElementById('testId').name).toEqual('testName');
+	});
 });

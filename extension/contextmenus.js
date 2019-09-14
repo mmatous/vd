@@ -24,7 +24,7 @@ export async function handleMenuClicked(info) {
 	switch (String(parentId)) {
 	case MenuType.selectionDigest:
 		entry.setDigest(info.selectionText);
-		vd.sendIfReady(entry);
+		vd.sendReady(entry);
 		break;
 	case MenuType.linkDigest:
 		await vd.downloadDigestForEntry(entry, new URL(info.linkUrl));

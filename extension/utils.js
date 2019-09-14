@@ -15,26 +15,19 @@ export async function boundedFetch(url) {
 	return Promise.race([ fetch(url, { method: 'GET', credentials: 'same-origin' }), timeout ]);
 }
 
-export async function get(url) {
+export async function get(url, json = false) {
 	const response = await boundedFetch(url).catch(err => {
 		throw Error(`Failed fetch() for ${url}: ${err}`);
 	});
 	if (response.ok) {
-		return response.text();
+		return json ? response.json() : response.text();
 	} else {
 		throw Error(`Failed fetch() for ${url}: ${response.statusText}`);
 	}
 }
 
 export async function getJson(url) {
-	const response = await boundedFetch(url).catch(err => {
-		throw Error(`Failed fetch() for ${url}: ${err}`);
-	});
-	if (response.ok) {
-		return response.json();
-	} else {
-		throw Error(`Failed fetch() for ${url}: ${response.statusText}`);
-	}
+	return get(url, true);
 }
 
 export async function notifyUser(title, message) {

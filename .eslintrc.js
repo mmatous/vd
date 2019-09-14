@@ -22,6 +22,9 @@ module.exports = {
 			'error',
 			{ 'allow': ['error', 'info', 'warn'] }
 		],
+		'no-trailing-spaces': [
+			'error'
+		],
 		'quotes': [
 			'error',
 			'single'

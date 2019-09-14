@@ -1,10 +1,10 @@
 # vd
 
-[![GitHub](https://img.shields.io/github/license/mmatous/vd?color=blue&style=plastic)](LICENSE)
+[![GitHub](https://img.shields.io/github/license/mmatous/vd?color=blue)](LICENSE)
 [![Build Status](https://travis-ci.com/mmatous/vd.svg?branch=master)](https://travis-ci.com/mmatous/vd)
 [![codecov](https://codecov.io/gh/mmatous/vd/branch/master/graph/badge.svg)](https://codecov.io/gh/mmatous/vd)
-[![Mozilla Add-on](https://img.shields.io/amo/v/vdownloads.svg?style=plastic)](https://addons.mozilla.org/en-US/firefox/addon/vdownloads/)
-[![Crypto](https://img.shields.io/badge/donate-crypto-blue.svg?style=plastic)](https://github.com/mmatous/vd/wiki/Donate)
+[![Mozilla Add-on](https://img.shields.io/amo/v/vdownloads.svg)](https://addons.mozilla.org/en-US/firefox/addon/vdownloads/)
+[![Crypto](https://img.shields.io/badge/donate-crypto-blue.svg)](https://github.com/mmatous/vd/wiki/Donate)
 
 Browser extension for verifying downloads.
 
