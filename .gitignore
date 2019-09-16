@@ -7,4 +7,5 @@ web-ext-artifacts
 yarn-error.log
 .web-extension-id
 README.html
+build
 
