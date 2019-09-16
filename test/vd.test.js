@@ -1,15 +1,15 @@
 'use strict';
 
-import { DownloadListItem } from '../extension/downloadlist.js';
+import { DownloadListItem } from '../src/downloadlist.js';
 import * as browser from 'sinon-chrome/webextensions';
 import fetch from 'jest-fetch-mock';
 
-import * as vd from '../extension/vd.js';
+import * as vd from '../src/vd.js';
 import * as helpers from './helpers.js';
-import * as constants from '../extension/constants.js';
+import * as constants from '../src/constants.js';
 
-import { get } from '../extension/3rdparty/TinyWebEx/AddonSettings/AddonSettings.js';
-jest.mock('../extension/3rdparty/TinyWebEx/AddonSettings/AddonSettings.js');
+import { get } from '../3rdparty/AddonSettings/AddonSettings.js';
+jest.mock('../3rdparty/AddonSettings/AddonSettings.js');
 
 beforeAll(() => {
 	window.browser = browser;

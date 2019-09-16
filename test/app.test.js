@@ -1,11 +1,11 @@
 'use strict';
 
-import * as app from '../extension/app.js';
+import * as app from '../src/app.js';
 import * as browser from 'sinon-chrome/webextensions';
 import * as helpers from './helpers.js';
 
-import { get } from '../extension/3rdparty/TinyWebEx/AddonSettings/AddonSettings.js';
-jest.mock('../extension/3rdparty/TinyWebEx/AddonSettings/AddonSettings.js');
+import { get } from '../3rdparty/AddonSettings/AddonSettings.js';
+jest.mock('../3rdparty/AddonSettings/AddonSettings.js');
 
 beforeAll(() => {
 	window.browser = browser;

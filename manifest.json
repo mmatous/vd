@@ -1,0 +1,34 @@
+{
+"default_locale": "en",
+"description": "__MSG_extensionDescription__",
+"homepage_url": "https://github.com/mmatous/vd",
+"manifest_version": 2,
+"name": "vd",
+"version": "0.5.0",
+
+"applications": {
+	"gecko": {
+		"id": "vd@vd.io",
+		"strict_min_version": "69.0"
+	}
+},
+
+"background": {
+	"page": "src/vd-background.html"
+},
+
+"options_ui": {
+	"browser_style": true,
+	"page": "src/options/vd-options.html"
+},
+
+"permissions": [
+	"<all_urls>",
+	"downloads",
+	"menus",
+	"nativeMessaging",
+	"notifications",
+	"storage"
+]
+
+}

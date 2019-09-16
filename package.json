@@ -4,10 +4,9 @@
 	"license": "GPL-3.0-or-later",
 	"scripts": {
 		"test": "jest",
-		"lint": "yarn run web-ext lint --source-dir ./extension/ && eslint ./extension/ && eslint ./test/",
-		"wrun": "web-ext run --source-dir ./extension",
-		"build": "web-ext build --source-dir ./extension --overwrite-dest",
-		"sign": "web-ext sign --source-dir ./extension"
+		"lint": "yarn run web-ext lint --source-dir ./src/ && eslint ./src/ && eslint ./test/",
+		"wrun": "./build.sh && web-ext run --source-dir ./build",
+		"build": "./build.sh && web-ext build --source-dir ./build --overwrite-dest"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.4.5",
@@ -22,7 +21,7 @@
 		"web-ext": "^3.0.0"
 	},
 	"eslintIgnore": [
-		"extension/3rdparty"
+		"3rdparty"
 	],
 	"private": true
 }

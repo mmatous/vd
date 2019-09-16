@@ -4,7 +4,7 @@ import {
 	DownloadList,
 	DownloadListItem,
 	DownloadState
-} from '../extension/downloadlist.js';
+} from '../src/downloadlist.js';
 import * as browser from 'sinon-chrome/webextensions';
 import * as helpers from './helpers.js';
 

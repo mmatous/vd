@@ -4,7 +4,7 @@ import * as browser from 'sinon-chrome/webextensions';
 
 import fetch from 'jest-fetch-mock';
 
-import * as util from '../extension/utils.js';
+import * as util from '../src/utils.js';
 
 jest.useFakeTimers();
 

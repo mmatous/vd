@@ -2,10 +2,10 @@
 
 import {
 	downloadDigestForEntry
-} from '../extension/vd.js';
-import * as ctxMenus from '../extension/contextmenus.js';
+} from '../src/vd.js';
+import * as ctxMenus from '../src/contextmenus.js';
 import * as browser from 'sinon-chrome/webextensions';
-jest.mock('../extension/vd.js');
+jest.mock('../src/vd.js');
 
 beforeAll(() => {
 	window.browser = browser;

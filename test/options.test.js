@@ -2,7 +2,7 @@
 
 import * as browser from 'sinon-chrome/webextensions';
 import * as helpers from './helpers.js';
-import * as options from '../extension/options/options.js';
+import * as options from '../src/options/options.js';
 
 beforeAll(() => {
 	window.browser = browser;

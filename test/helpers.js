@@ -1,6 +1,6 @@
 'use strict';
 
-import { DownloadState } from '../extension/downloadlist.js';
+import { DownloadState } from '../src/downloadlist.js';
 
 export const testDownloadItem = {
 	id: 1,

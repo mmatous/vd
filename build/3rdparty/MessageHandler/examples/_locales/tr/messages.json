@@ -1,0 +1,13 @@
+{
+  // errors or other messages (mostly for settings)
+  "errorShowingMessage": {
+    "message": "Mesaj görüntülenemedi.",
+    "description": "When there is an error when showing the error/info/…."
+  },
+
+  // ARIA labels/descriptions for messages
+  "dismissIconDescription": {
+    "message": "Bu mesajı kapat",
+    "description": "the aria label for the close button of the message box"
+  }
+}

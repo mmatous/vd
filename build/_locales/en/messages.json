@@ -1,0 +1,170 @@
+{
+    "autoDetectLabel": {
+        "message": "Try to detect digests/signatures automatically",
+        "description": "Checkbox label in settings"
+    },
+    "ctxMenuDigestDirect": {
+        "message": "Designate selection as hex-encoded digest",
+        "description": "Right-click sub menu if text is selected"
+    },
+    "ctxMenuDigestLink": {
+        "message": "Designate link location as digest file",
+        "description": "Right-click sub menu if link is clicked"
+    },
+    "ctxMenuSig": {
+        "message": "Designate link location as signature file for data",
+        "description": "Right-click sub menu if link is clicked"
+    },
+    "ctxMenuSigDigest": {
+        "message": "Designate link location as signature file for digest",
+        "description": "Right-click sub menu if link is clicked"
+    },
+    "digestMatching": {
+        "message": "You can edit file-to-digest matching for specific URLs $LINKTEXT$",
+        "description": "Shown in HTML settings page",
+        "placeholders": {
+            "linktext": {
+                "content": "$1",
+                "example": "<a href=\"mozextension://UUID/suboptions.html\">here</a>"
+            }
+        }
+    },
+    "digestRuleset": {
+        "message": "Digest ruleset$SUPERSCRIPT$",
+        "description": "Shown in HTML settings page",
+        "placeholders": {
+            "superscript": {
+                "content": "$1",
+                "example": "<sup><a href=\"https://github.com/somewhere/wiki\">?</a></sup>"
+            }
+        }
+    },
+    "downloadLatest": {
+        "message": "Download latest",
+        "description": "Button in settings, opens github releases"
+    },
+    "errorEncountered": {
+        "message": "❗ Error encountered",
+        "description": "Title of notification if errors are encountered during verification"
+    },
+    "extensionDescription": {
+        "message": "Verify downloaded files using their digests and signature files.",
+        "description": "Extension description displayed in browser UI"
+    },
+    "here": {
+        "message": "here",
+        "description": "Continued from digestMatching and signaturesMatching"
+    },
+    "integrityFailed": {
+        "message": "❌ Integrity check failed",
+        "description": "Possible part of results notification"
+    },
+    "integrityError": {
+        "message": "❗ Integrity check error: $ERR$",
+        "description": "Possible part of results notification",
+        "placeholders": {
+            "err": {
+                "content": "$1",
+                "example": "No such file or directory while opening digest file"
+            }
+        }
+    },
+    "integrityPassed": {
+        "message": "✅ Integrity check passed",
+        "description": "Possible part of results notification"
+    },
+    "latestVersion": {
+        "message": "Latest available version: $VERSION$",
+        "description": "Info about latest released version in settings",
+        "placeholders": {
+            "version": {
+                "content": "$1",
+                "example": "1.0.3"
+            }
+        }
+    },
+    "matchingRules": {
+        "message": "Matching rules",
+        "description": "Section label in settings"
+    },
+    "otherSettings": {
+        "message": "Other",
+        "description": "Section label in settings"
+    },
+    "signatureError": {
+        "message": "❗ Error checking signatures: $ERR$",
+        "description": "Possible part of results notification",
+        "placeholders": {
+            "err": {
+                "content": "$1",
+                "example": "Access denied while opening signature file"
+            }
+        }
+    },
+    "signatureOk": {
+        "message": "✅ Signature OK",
+        "description": "Possible part of results notification"
+    },
+    "signaturesMatching": {
+        "message": "You can edit file-to-signature matching for specific URLs $LINKTEXT$",
+        "description": "Shown in HTML settings page",
+        "placeholders": {
+            "linktext": {
+                "content": "$1",
+                "example": "<a href=\"mozextension://UUID/suboptions.html\">here</a>"
+            }
+        }
+    },
+    "signaturesProcessed": {
+        "message": "Processed $NUM$ signature(s):",
+        "description": "Possible part of results notification, always > 0",
+        "placeholders": {
+            "num": {
+                "content": "$1",
+                "example": "1"
+            }
+        }
+    },
+    "signaturesRuleset": {
+        "message": "Signatures ruleset$SUPERSCRIPT$",
+        "description": "Shown in HTML settings page",
+        "placeholders": {
+            "superscript": {
+                "content": "$1",
+                "example": "<sup><a href=\"https://github.com/somewhere/wiki\">?</a></sup>"
+            }
+        }
+    },
+    "testVerifier": {
+        "message": "Test",
+        "description": "Button in settings, tests communication with native app"
+    },
+    "verificationResults": {
+        "message": "Verification results",
+        "description": "Title of notification if verification does not encounter errors"
+    },
+    "verifierOptions": {
+        "message": "Verifier options",
+        "description": "Section label in settings"
+    },
+    "versionResponse": {
+        "message": "Setup OK, version: $VERSION$",
+        "description": "Info about locally installed version in settings",
+        "placeholders": {
+            "version": {
+                "content": "$1",
+                "example": "1.0.3"
+            }
+        }
+    },
+    "versionRequestError": {
+        "message": "vd-verifier is not working correctly.\nPlease ensure you have the latest version from $URL$ installed",
+        "description": "Notification if self-test does not complete succesfully",
+        "placeholders": {
+            "url": {
+                "content": "$1",
+                "example": "https://github.com/mmatous/vd-verifier/releases/latest"
+            }
+        }
+    }
+}

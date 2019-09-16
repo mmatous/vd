@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>Home - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    <h2><a href="index.html">Home</a></h2><h2><a href="https://github.com/TinyWebEx/" >All TinyWebExt modules</a></h2><h3>Modules</h3><ul><li><a href="module-CommonMessages.html">CommonMessages</a><ul class='methods'><li data-type='method'><a href="module-CommonMessages.html#.hideError">hideError</a></li><li data-type='method'><a href="module-CommonMessages.html#.hideInfo">hideInfo</a></li><li data-type='method'><a href="module-CommonMessages.html#.hideLoading">hideLoading</a></li><li data-type='method'><a href="module-CommonMessages.html#.hideSuccess">hideSuccess</a></li><li data-type='method'><a href="module-CommonMessages.html#.hideWarning">hideWarning</a></li><li data-type='method'><a href="module-CommonMessages.html#.init">init</a></li><li data-type='method'><a href="module-CommonMessages.html#.setDismissHooks">setDismissHooks</a></li><li data-type='method'><a href="module-CommonMessages.html#.setErrorHook">setErrorHook</a></li><li data-type='method'><a href="module-CommonMessages.html#.setInfoHook">setInfoHook</a></li><li data-type='method'><a href="module-CommonMessages.html#.setLoadingHook">setLoadingHook</a></li><li data-type='method'><a href="module-CommonMessages.html#.setSuccessHook">setSuccessHook</a></li><li data-type='method'><a href="module-CommonMessages.html#.setWarningHook">setWarningHook</a></li><li data-type='method'><a href="module-CommonMessages.html#.showError">showError</a></li><li data-type='method'><a href="module-CommonMessages.html#.showInfo">showInfo</a></li><li data-type='method'><a href="module-CommonMessages.html#.showLoading">showLoading</a></li><li data-type='method'><a href="module-CommonMessages.html#.showSuccess">showSuccess</a></li><li data-type='method'><a href="module-CommonMessages.html#.showWarning">showWarning</a></li></ul></li><li><a href="module-CustomMessages.html">CustomMessages</a><ul class='methods'><li data-type='method'><a href="module-CustomMessages.html#.getHtmlElement">getHtmlElement</a></li><li data-type='method'><a href="module-CustomMessages.html#.setGlobalHook">setGlobalHook</a></li><li data-type='method'><a href="module-CustomMessages.html#.setHook">setHook</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+
+    
+
+
+
+    
+
+
+
+    <section class="readme">
+        <article><h1 id="tinywebext-messagehandler">TinyWebExt MessageHandler</h1>
+<p>A handler for showing customizable, hidable notification messages in your add-on.</p>
+<h2 id="features">Features</h2>
+<ul>
+<li>automatically logs shown messages to the console</li>
+<li>automatic translation of messages passed in</li>
+<li>dismissable messages</li>
+<li>messages with an action button</li>
+</ul>
+<h2 id="setup">Setup</h2>
+<p>This module requires a specific HTML markup to be included in the HTML file, where you want to show messages. If a specific message markup is not included or malformed, the module cannot show an error (of this type). Here is how the HTML should be structured:</p>
+<ul>
+<li>All messages must be included in the HTML element with the class <code>message-container</code>.</li>
+<li>Inside of that, there must be message (DIVs) with the class <code>message-box</code>.</li>
+<li>The subelement <code>message-text</code> contains the text of the message, <code>message-action-button</code> marks an optional action button and <code>icon-dismiss</code> shows an optional icon to dismiss a warning.</li>
+<li>The individual different message types need a specific unique ID, i.e. <code>messageLoading</code>, <code>messageInfo</code>, <code>messageSuccess</code>, <code>messageWarning</code> and <code>messageError</code> if you want to use the <a href="#common-messages">common messages</a>. These IDs are [hardcoded in the init function of <code>CommonMessages.js</code>).</li>
+<li>You should also have aria labels and other elements set.</li>
+</ul>
+<p>In the end, here is a copy template on how it should look, <a href="./tests/messageHandler/baseCode.html">taken from the unit tests</a>:</p>
+<pre class="prettyprint source lang-html"><code>&lt;div class=&quot;message-container&quot;>
+	&lt;div id=&quot;messageLoading&quot; aria-label=&quot;loading message&quot; data-i18n data-i18n-aria-label=&quot;__MSG_ariaMessageLoading__&quot; class=&quot;message-box info invisible fade-hide&quot;>
+		&lt;span class=&quot;message-text&quot;>wait wait wait&lt;/span>
+	&lt;/div>
+	&lt;div id=&quot;messageInfo&quot; aria-label=&quot;info message&quot; data-i18n data-i18n-aria-label=&quot;__MSG_ariaMessageInfo__&quot; class=&quot;message-box info invisible fade-hide&quot;>
+		&lt;span class=&quot;message-text&quot;>FYI&lt;/span>
+		&lt;a href=&quot;#&quot;>
+			&lt;button type=&quot;button&quot; class=&quot;message-action-button micro-button info invisible&quot;>&lt;/button>
+		&lt;/a>
+		&lt;img class=&quot;icon-dismiss invisible&quot; src=&quot;/common/img/close.svg&quot; width=&quot;24&quot; height=&quot;24&quot; tabindex=&quot;0&quot; data-i18n data-i18n-aria-label=&quot;__MSG_dismissIconDescription__&quot;>&lt;/span>
+	&lt;/div>
+	&lt;div id=&quot;messageSuccess&quot; aria-label=&quot;success message&quot; data-i18n data-i18n-aria-label=&quot;__MSG_ariaMessageSuccess__&quot; class=&quot;message-box success invisible fade-hide&quot;>
+		&lt;span class=&quot;message-text&quot;>That worked!&lt;/span>
+		&lt;a href=&quot;#&quot;>
+			&lt;button type=&quot;button&quot; class=&quot;message-action-button micro-button success invisible&quot;>&lt;/button>
+		&lt;/a>
+		&lt;img class=&quot;icon-dismiss invisible&quot; src=&quot;/common/img/close.svg&quot; width=&quot;24&quot; height=&quot;24&quot; tabindex=&quot;0&quot; data-i18n data-i18n-aria-label=&quot;__MSG_dismissIconDescription__&quot;>&lt;/span>
+	&lt;/div>
+	&lt;div id=&quot;messageError&quot; aria-label=&quot;error message&quot; data-i18n data-i18n-aria-label=&quot;__MSG_ariaMessageError__&quot; class=&quot;message-box error invisible fade-hide&quot;>
+		&lt;span class=&quot;message-text&quot;>An error happened.&lt;/span>
+		&lt;a href=&quot;#&quot;>
+			&lt;button type=&quot;button&quot; class=&quot;message-action-button micro-button error invisible&quot;>&lt;/button>
+		&lt;/a>
+		&lt;img class=&quot;icon-dismiss invisible&quot; src=&quot;/common/img/close.svg&quot; width=&quot;24&quot; height=&quot;24&quot; tabindex=&quot;0&quot; data-i18n data-i18n-aria-label=&quot;__MSG_dismissIconDescription__&quot;>&lt;/span>
+	&lt;/div>
+	&lt;div id=&quot;messageWarning&quot; aria-label=&quot;warning message&quot; data-i18n data-i18n-aria-label=&quot;__MSG_ariaMessageWarning__&quot; class=&quot;message-box warning invisible fade-hide&quot;>
+		&lt;span class=&quot;message-text&quot;>There were some difficulties.&lt;/span>
+		&lt;a href=&quot;#&quot;>
+			&lt;button type=&quot;button&quot; class=&quot;message-action-button micro-button warning invisible&quot;>&lt;/button>
+		&lt;/a>
+		&lt;img class=&quot;icon-dismiss invisible&quot; src=&quot;/common/img/close.svg&quot; width=&quot;24&quot; height=&quot;24&quot; tabindex=&quot;0&quot; data-i18n data-i18n-aria-label=&quot;__MSG_dismissIconDescription__&quot;>&lt;/span>
+	&lt;/div>
+&lt;/div>
+</code></pre>
+<p>If one of the (optional) elements, such as a dismiss icon or action button is not present in the HTML code, and someone tries to use it via JS, this will just be ignored, i.e. the HTML has precendence over JS and limits whether it is even possible to show a button/dismiss icon/...
+Note that if the whole message type DIV is not there, this will lead to errors.</p>
+<h2 id="showing-messages">Showing messages</h2>
+<h3 id="common-messages">Common Messages</h3>
+<p>If you want do show error or other messages, you can then just call:</p>
+<pre class="prettyprint source lang-js"><code>CommonMessages.showError(&quot;errorMessage&quot;);
+</code></pre>
+<p>Respectively hide them with:</p>
+<pre class="prettyprint source lang-js"><code>CommonMessages.hideError();
+</code></pre>
+<p>There are function available for each message type.</p>
+<h3 id="custom-messages">Custom Messages</h3>
+<p>The <a href="CustomMessages.js"><code>CustomMessages.js</code></a> module is also used by the <code>CommonMessages.js</code> as it's core, i.e. it's also a good rreference to see how the <code>CustomMessages.js</code> file is used.</p>
+<p>Basicaly, this is the workflow you have to follow:</p>
+<ul>
+<li>First, register your message type with <code>registerMessageType</code>. You have to pass it some required values for the message type, such as an ID and a HTML element to use.</li>
+<li>For showing/hiding the message or binding a <a href="#hooks">hook</a> to the message type, you can then just call <code>CustomMessages.showMessage</code>, <code>CustomMessages.hideMessage</code> or <code>CustomMessages.setHook</code> with the message ID you've registered before.</li>
+</ul>
+<p>It is recommend to save the message ID in some constant in your source code, so typos do not lead to major problems. :wink:</p>
+<h3 id="parameters">Parameters</h3>
+<p>All functions that show a message (i.e. <code>showMessage</code> etc) do have the same syntax for parameters.</p>
+<ul>
+<li>The first parameter is the string top show or translate. (it automatically searches for translations)</li>
+<li>There is a boolean, you can use to enable the user to dismiss the message.</li>
+<li>You can pass an <code>actionButton</code> object, with a <code>text</code> for the button and an <code>action</code>, i.e. URL or JS function to open/execute, when the button is pressed.</li>
+<li>Any other parameters can be passed for translation.</li>
+</ul>
+<p>In such a way you can do something as complex as this:</p>
+<pre class="prettyprint source lang-js"><code>CommonMessages.showSuccess(&quot;resettingOptionsWorked&quot;, true, {
+    text: &quot;messageUndoButton&quot;,
+    action: () => {
+        browser.storage.sync.set(lastOptionsBeforeReset).then(() => {
+            // re-load the options again
+            return loadAllOptions();
+        }).catch((error) => {
+            console.error(&quot;Could not undo option resetting: &quot;, error);
+            CommonMessages.showError(&quot;couldNotUndoAction&quot;);
+        }).finally(() => {
+            CommonMessages.hideSuccess();
+        });
+    }
+})
+</code></pre>
+<p>(This is actually <a href="https://github.com/TinyWebEx/AutomaticSettings">used in TinyWebEx AutomaticSettings</a>.)</p>
+<h3 id="hooks">Hooks</h3>
+<p>You can set different hooks (callbacks) that are executed when a message is shown, hidden or dismissed.</p>
+<p><strong>Important:</strong> When a message is dismissed, it is also always hidden afterwards, i.e. both events are triggered.</p>
+<p>For this, the function <code>setHook</code>, respectively <code>setGlobalHook</code> allow you to register callbacks for one message type or all message types.</p>
+<p><strong>Important:</strong> Only one hook can be registered at a time. (Also for global hooks!) Thus, if you want to unset a hook, you can just &quot;register&quot; a new one with the value <code>null</code>.</p>
+<h2 id="i18n%2Fl10n">i18n/l10n</h2>
+<p>This module does require some specific localisations. Example localisation files for these are included in the <a href="%60examples/_locales%60">examples dir</a>.</p></article>
+    </section>
+
+
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.2</a> on Sun Jun 30 2019 23:08:03 GMT+0200 (GMT+02:00) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+</body>
+</html>

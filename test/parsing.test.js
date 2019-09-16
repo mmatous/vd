@@ -1,6 +1,6 @@
 'use strict';
 
-import * as parsing from '../extension/parsing.js';
+import * as parsing from '../src/parsing.js';
 import * as helpers from './helpers.js';
 
 describe('getFilename()', () => {

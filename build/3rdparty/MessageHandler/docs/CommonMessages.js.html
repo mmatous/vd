@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>CommonMessages.js - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    <h2><a href="index.html">Home</a></h2><h2><a href="https://github.com/TinyWebEx/" >All TinyWebExt modules</a></h2><h3>Modules</h3><ul><li><a href="module-CommonMessages.html">CommonMessages</a><ul class='methods'><li data-type='method'><a href="module-CommonMessages.html#.hideError">hideError</a></li><li data-type='method'><a href="module-CommonMessages.html#.hideInfo">hideInfo</a></li><li data-type='method'><a href="module-CommonMessages.html#.hideLoading">hideLoading</a></li><li data-type='method'><a href="module-CommonMessages.html#.hideSuccess">hideSuccess</a></li><li data-type='method'><a href="module-CommonMessages.html#.hideWarning">hideWarning</a></li><li data-type='method'><a href="module-CommonMessages.html#.init">init</a></li><li data-type='method'><a href="module-CommonMessages.html#.setDismissHooks">setDismissHooks</a></li><li data-type='method'><a href="module-CommonMessages.html#.setErrorHook">setErrorHook</a></li><li data-type='method'><a href="module-CommonMessages.html#.setInfoHook">setInfoHook</a></li><li data-type='method'><a href="module-CommonMessages.html#.setLoadingHook">setLoadingHook</a></li><li data-type='method'><a href="module-CommonMessages.html#.setSuccessHook">setSuccessHook</a></li><li data-type='method'><a href="module-CommonMessages.html#.setWarningHook">setWarningHook</a></li><li data-type='method'><a href="module-CommonMessages.html#.showError">showError</a></li><li data-type='method'><a href="module-CommonMessages.html#.showInfo">showInfo</a></li><li data-type='method'><a href="module-CommonMessages.html#.showLoading">showLoading</a></li><li data-type='method'><a href="module-CommonMessages.html#.showSuccess">showSuccess</a></li><li data-type='method'><a href="module-CommonMessages.html#.showWarning">showWarning</a></li></ul></li><li><a href="module-CustomMessages.html">CustomMessages</a><ul class='methods'><li data-type='method'><a href="module-CustomMessages.html#.getHtmlElement">getHtmlElement</a></li><li data-type='method'><a href="module-CustomMessages.html#.setGlobalHook">setGlobalHook</a></li><li data-type='method'><a href="module-CustomMessages.html#.setHook">setHook</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">CommonMessages.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Provides access to the most common message types.
+ *
+ * @public
+ * @module CommonMessages
+ */
+
+import { MESSAGE_LEVEL } from "../data/MessageLevel.js";
+
+import * as CustomMessages from "./CustomMessages.js";
+
+// simply forward custom message types
+export {hideMessage, showMessage} from "./CustomMessages.js";
+
+/**
+ * Hides the error message.
+ *
+ * @public
+ * @param  {Object} [options]
+ * @param  {boolean} [options.animate=false] set to true to animate the hiding
+ * @returns {void}
+ */
+export function hideError(...args) {
+    args.unshift(MESSAGE_LEVEL.ERROR);
+    CustomMessages.hideMessage(...args);
+}
+
+/**
+ * Hide warning message.
+ *
+ * @public
+ * @param  {Object} [options]
+ * @param  {boolean} [options.animate=false] set to true to animate the hiding
+ * @returns {void}
+ */
+export function hideWarning(...args) {
+    args.unshift(MESSAGE_LEVEL.WARNING);
+    CustomMessages.hideMessage(...args);
+}
+
+/**
+ * Hide info message.
+ *
+ * @public
+ * @param  {Object} [options]
+ * @param  {boolean} [options.animate=false] set to true to animate the hiding
+ * @returns {void}
+ */
+export function hideInfo(...args) {
+    args.unshift(MESSAGE_LEVEL.INFO);
+    CustomMessages.hideMessage(...args);
+}
+
+/**
+ * Hide loading message.
+ *
+ * @public
+ * @param  {Object} [options]
+ * @param  {boolean} [options.animate=false] set to true to animate the hiding
+ * @returns {void}
+ */
+export function hideLoading(...args) {
+    args.unshift(MESSAGE_LEVEL.LOADING);
+    CustomMessages.hideMessage(...args);
+}
+
+/**
+ * Hide success message.
+ *
+ * @public
+ * @param  {Object} [options]
+ * @param  {boolean} [options.animate=false] set to true to animate the hiding
+ * @returns {void}
+ */
+export function hideSuccess(...args) {
+    args.unshift(MESSAGE_LEVEL.SUCCESS);
+    CustomMessages.hideMessage(...args);
+}
+
+/**
+ * Show a critical error.
+ *
+ * Note this should only be used to show *short* error messages, which are
+ * meaningfull to the user, as the space is limited. So it is mostly only
+ * useful to use only one param: a string.
+ * Also pay attention to the fact, that it currently can only show one error
+ * once.
+ *
+ * @public
+ * @param {string} [message] optional, string to show or to translate if omitted no new text is shown
+ * @param {boolean} [isDismissable] optional, set to true, if user should be able to dismiss the message
+ * @param {Object} [actionButton] optional to show an action button
+ * @param {string} actionButton.text
+ * @param {string|function} actionButton.action URL to site to open on link OR function to execute
+ * @param {...*} args optional parameters for translation
+ * @returns {void}
+ */
+export function showError(...args) {
+    args.unshift(MESSAGE_LEVEL.ERROR);
+    CustomMessages.showMessage(...args);
+}
+
+/**
+ * Show an warning message.
+ *
+ * @public
+ * @param {string} [message] optional, string to show or to translate if omitted no new text is shown
+ * @param {boolean} [isDismissable] optional, set to true, if user should be able to dismiss the message
+ * @param {Object} [actionButton] optional to show an action button
+ * @param {string} actionButton.text
+ * @param {string|function} actionButton.action URL to site to open on link OR function to execute
+ * @param {...*} args optional parameters for translation
+ * @returns {void}
+ */
+export function showWarning(...args) {
+    args.unshift(MESSAGE_LEVEL.WARN);
+    CustomMessages.showMessage(...args);
+}
+
+/**
+ * Show an info message.
+ *
+ * @public
+ * @param {string} [message] optional, string to show or to translate if omitted no new text is shown
+ * @param {boolean} [isDismissable] optional, set to true, if user should be able to dismiss the message
+ * @param {Object} [actionButton] optional to show an action button
+ * @param {string} actionButton.text
+ * @param {string} actionButton.link URL to site to open on link
+ * @param {...*} args optional parameters for translation
+ * @returns {void}
+ */
+export function showInfo(...args) {
+    args.unshift(MESSAGE_LEVEL.INFO);
+    CustomMessages.showMessage(...args);
+}
+
+/**
+ * Shows a loading message.
+ *
+ * @public
+ * @param {string} [message] optional, string to show or to translate if omitted no new text is shown
+ * @param {boolean} [isDismissable] optional, set to true, if user should be able to dismiss the message
+ * @param {Object} [actionButton] optional to show an action button
+ * @param {string} actionButton.text
+ * @param {string|function} actionButton.action URL to site to open on link OR function to execute
+ * @param {...*} args optional parameters for translation
+ * @returns {void}
+ */
+export function showLoading(...args) {
+    args.unshift(MESSAGE_LEVEL.LOADING);
+    CustomMessages.showMessage(...args);
+}
+
+/**
+ * Show a success message.
+ *
+ * @public
+ * @param {string} [message] optional, string to show or to translate if omitted no new text is shown
+ * @param {boolean} [isDismissable] optional, set to true, if user should be able to dismiss the message
+ * @param {Object} [actionButton] optional to show an action button
+ * @param {string} actionButton.text
+ * @param {string|function} actionButton.action URL to site to open on link OR function to execute
+ * @param {...*} args optional parameters for translation
+ * @returns {void}
+ */
+export function showSuccess(...args) {
+    args.unshift(MESSAGE_LEVEL.SUCCESS);
+    CustomMessages.showMessage(...args);
+}
+
+/**
+ * Let's other functions set a hook to be called when a message type is
+ * shown or hidden.
+ *
+ * Set parameters to null or undefined (i.e. do not set) in order to disable
+ * the hook.
+ * The errorShown function gets one parameter: The arguments passed to the
+ * function, as an array.
+ *
+ * @private
+ * @param {MESSAGE_LEVEL|HTMLElement} messageType use string "global" for a global hook
+ * @param {function|null} [hookShown]
+ * @param {function|null} [hookHidden]
+ * @returns {void}
+ */
+function setHook(messageType, hookShown = null, hookHidden = null) {
+    CustomMessages.setHook(messageType, "show", hookShown);
+    CustomMessages.setHook(messageType, "hide", hookHidden);
+}
+
+/**
+ * Let's other functions set a hook to be called when a error message is
+ * shown or hidden.
+ *
+ * Set parameters to null or undefined (i.e. do not set) in order to disable
+ * the hook.
+ * The errorShown function gets one parameter: The arguments passed to the
+ * function, as an array.
+ *
+ * @public
+ * @param {function|null} [hookShown]
+ * @param {function|null} [hookHidden]
+ * @returns {void}
+ */
+export function setErrorHook(hookShown = null, hookHidden = null) {
+    return setHook(MESSAGE_LEVEL.ERROR, hookShown, hookHidden);
+}
+
+/**
+ * Let's other functions set a hook to be called when a warning message is
+ * shown or hidden.
+ *
+ * Set parameters to null or undefined (i.e. do not set) in order to disable
+ * the hook.
+ * The errorShown function gets one parameter: The arguments passed to the
+ * function, as an array.
+ *
+ * @public
+ * @param {function|null} [hookShown]
+ * @param {function|null} [hookHidden]
+ * @returns {void}
+ */
+export function setWarningHook(hookShown = null, hookHidden = null) {
+    return setHook(MESSAGE_LEVEL.WARN, hookShown, hookHidden);
+}
+
+/**
+ * Let's other functions set a hook to be called when a info message is shown
+ * or hidden.
+ *
+ * Set parameters to null or undefined (i.e. do not set) in order to disable
+ * the hook.
+ * The errorShown function gets one parameter: The arguments passed to the
+ * function, as an array.
+ *
+ * @public
+ * @param {function|null} [hookShown]
+ * @param {function|null} [hookHidden]
+ * @returns {void}
+ */
+export function setInfoHook(hookShown = null, hookHidden = null) {
+    return setHook(MESSAGE_LEVEL.INFO, hookShown, hookHidden);
+}
+
+/**
+ * Let's other functions set a hook to be called when a loading message is
+ * shown or hidden.
+ *
+ * Set parameters to null or undefined (i.e. do not set) in order to disable
+ * the hook.
+ * The errorShown function gets one parameter: The arguments passed to the
+ * function, as an array.
+ *
+ * @public
+ * @param {function|null} [hookShown]
+ * @param {function|null} [hookHidden]
+ * @returns {void}
+ */
+export function setLoadingHook(hookShown = null, hookHidden = null) {
+    return setHook(MESSAGE_LEVEL.LOADING, hookShown, hookHidden);
+}
+
+/**
+ * Let's other functions set a hook to be called when an success message is
+ * shown or hidden.
+ *
+ * Set parameters to null or undefined (i.e. do not set) in order to disable
+ * the hook.
+ * The errorShown function gets one parameter: The arguments passed to the
+ * function, as an array.
+ *
+ * @public
+ * @param {function|null} [hookShown]
+ * @param {function|null} [hookHidden]
+ * @returns {void}
+ */
+export function setSuccessHook(hookShown = null, hookHidden = null) {
+    return setHook(MESSAGE_LEVEL.SUCCESS, hookShown, hookHidden);
+}
+
+/**
+ * Called when a message is dismissed.
+ *
+ + When called, the function does not know, which message is hidden, but you
+ * can determinante it by yourself.
+ * The called hook gets an object with two parameters:
+ * - {HTMLElement} elMessage – the message element, which was hidden
+ * - {event} event – the original click even on the dismiss button
+ *
+ * @public
+ * @param {function|null} [startHook]
+ * @param {function|null} [endHook]
+ * @returns {void}
+ */
+export function setDismissHooks(startHook = null, endHook = null) {
+    CustomMessages.setGlobalHook("dismissStart", startHook);
+    CustomMessages.setGlobalHook("dismissEnd", endHook);
+}
+
+/**
+ * Only registers the message type, if the HTML element exists.
+ *
+ * @private
+ * @param  {int|string} messageType
+ * @param  {HTMLElement} elMessage element to register with it
+ * @param  {string} [designClass] the class to apply
+ * @param  {string} [ariaLabelType] the "aria-label" for this message type
+ * @returns {void}
+ */
+function registerMessageTypeIfExists(messageType, elMessage, designClass, ariaLabelType) {
+    if (!elMessage) {
+        console.warn(elMessage, "does not exist. Skip registering message type.");
+        return;
+    }
+
+    CustomMessages.registerMessageType(messageType, elMessage, designClass, ariaLabelType);
+}
+
+/**
+ * Initialises the module.
+ *
+ * @public
+ * @returns {void}
+ */
+export function init() {
+    registerMessageTypeIfExists(MESSAGE_LEVEL.ERROR, document.getElementById("messageError"), "error", "error message");
+    registerMessageTypeIfExists(MESSAGE_LEVEL.WARN, document.getElementById("messageWarning"), "warning", "warning message");
+    registerMessageTypeIfExists(MESSAGE_LEVEL.INFO, document.getElementById("messageInfo"), "info", "info message");
+    registerMessageTypeIfExists(MESSAGE_LEVEL.SUCCESS, document.getElementById("messageSuccess"), "success", "success message");
+    registerMessageTypeIfExists(MESSAGE_LEVEL.LOADING, document.getElementById("messageLoading"), "info", "loading message");
+}
+
+// init module automatically
+init();
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.2</a> on Sun Jun 30 2019 23:08:03 GMT+0200 (GMT+02:00) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+
+
+</body>
+</html>
