@@ -1,6 +1,7 @@
 'use strict';
 
 import { FETCH_TIMEOUT_MS } from './constants.js';
+import VdError from './vd-error.js';
 
 export function isDigestString(hexStr) {
 	// 20-64 pairs of hex characters (bytes)
@@ -17,12 +18,12 @@ export async function boundedFetch(url) {
 
 export async function get(url, json = false) {
 	const response = await boundedFetch(url).catch(err => {
-		throw Error(`Failed fetch() for ${url}: ${err}`);
+		throw new VdError(false, `Failed fetch() for ${url}: ${err}`);
 	});
 	if (response.ok) {
 		return json ? response.json() : response.text();
 	} else {
-		throw Error(`Failed fetch() for ${url}: ${response.statusText}`);
+		throw new VdError(false, `Failed fetch() for ${url}: ${response.statusText}`);
 	}
 }
 

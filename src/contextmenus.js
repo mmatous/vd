@@ -3,6 +3,7 @@
 import { getFilename, getFileDir } from './parsing.js';
 import * as vd from './vd.js';
 import { SignedData } from './constants.js';
+import VdError from './vd-error.js';
 
 export const MenuType = Object.freeze({
 	selectionDigest: '0',
@@ -36,7 +37,7 @@ export async function handleMenuClicked(info) {
 		await vd.downloadSignatureForEntry(entry, new URL(info.linkUrl), SignedData.digest);
 		break;
 	default:
-		throw Error(`Invalid parent ID: ${parentId}`);
+		throw new VdError(false, `Invalid parent ID: ${parentId}`);
 	}
 }
 

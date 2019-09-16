@@ -2,13 +2,14 @@
 
 import * as utils from './utils.js';
 import * as constants from './constants.js';
+import VdError from './vd-error.js';
 
 export async function versionRequest() {
 	const testMessage = { 'version-request': true };
 	const response = await browser.runtime.sendNativeMessage(constants.NATIVE_APP_ID, testMessage);
 	console.info(`Native app responded: ${JSON.stringify(response, null, '\t')}`);
 	if (!response.version) {
-		throw Error(response);
+		throw new VdError(true, response);
 	} else {
 		return response.version;
 	}
@@ -67,7 +68,7 @@ export async function handleAppResponse(response, filePath) {
 ${filePath}`;
 		await utils.notifyUser(browser.i18n.getMessage('verificationResults'), notificationText);
 	} else {
-		throw Error(`Invalid response ${JSON.stringify(response)}`);
+		throw new VdError(true, `Invalid response ${JSON.stringify(response)}`);
 	}
 }
 
@@ -78,6 +79,6 @@ export async function sendToNativeApp(entry) {
 		console.info(`Native app responded: ${JSON.stringify(response, null, '\t')}`);
 		await handleAppResponse(response, entry.inputFile);
 	} catch (e) {
-		throw Error(`Error communicating with vd-verifier: ${e.message}`);
+		throw new VdError(true, `Error communicating with vd-verifier: ${e.message}`);
 	}
 }

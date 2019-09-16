@@ -11,6 +11,7 @@ import {
 import * as parsing from './parsing.js';
 import * as utils from './utils.js';
 import * as app from './app.js';
+import VdError from './vd-error.js';
 
 export const downloadList = new DownloadList(constants.REMEMBER_DOWNLOADS, ctxMenus.deleteContextMenu);
 
@@ -188,7 +189,7 @@ export async function browserDownloadFile(url) {
 		let dItem = await browser.downloads.search({id: downloadId});
 		return dItem[0];
 	} catch (e) {
-		throw Error(`Unable to download ${url.href}: ${e}`);
+		throw new VdError(true, `Unable to download ${url.href}: ${e}`);
 	}
 }
 
@@ -196,7 +197,9 @@ async function handleError(err, entry) {
 	console.error(`${err.message}`);
 	await cleanup(entry.digestId, entry.digestState);
 	await cleanup(entry.signatureId, entry.signatureState);
-	await utils.notifyUser(browser.i18n.getMessage('errorEncountered'), err.message);
+	if (err.notify) {
+		await utils.notifyUser(browser.i18n.getMessage('errorEncountered'), err.message);
+	}
 }
 
 async function handleDownloadFinished(delta) {
