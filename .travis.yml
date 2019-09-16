@@ -3,11 +3,17 @@ language: node_js
 node_js:
   node
 
+addons:
+  apt:
+    packages:
+    - rsync
+
 install:
   - yarn global add codecov
   - yarn install
 
 script:
+  - chmod u+x ./build.sh
   - yarn lint
   - yarn test
   - codecov

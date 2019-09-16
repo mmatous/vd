@@ -4,7 +4,7 @@
 	"license": "GPL-3.0-or-later",
 	"scripts": {
 		"test": "jest",
-		"lint": "yarn run web-ext lint --source-dir ./src/ && eslint ./src/ && eslint ./test/",
+		"lint": "./build.sh && yarn run web-ext lint --source-dir ./build/ && eslint ./src/ && eslint ./test/",
 		"wrun": "./build.sh && web-ext run --source-dir ./build",
 		"build": "./build.sh && web-ext build --source-dir ./build --overwrite-dest"
 	},
