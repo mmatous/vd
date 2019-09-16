@@ -337,7 +337,8 @@ export function loadOptions() {
     return gettingManagedOption.catch(() => gettingSyncOption);
 }
 
+// Disabled for vd, breaks tests
 // automatically fetch options
-loadOptions().then(() => {
-    console.info("AddonSettings module loaded.");
-});
+// loadOptions().then(() => {
+//     console.info("AddonSettings module loaded.");
+// });
