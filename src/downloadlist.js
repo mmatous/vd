@@ -3,10 +3,7 @@
 import { getFilename } from './parsing.js';
 import { isDigestString, notifyUser } from './utils.js';
 import VdError from './vd-error.js';
-
-export const DownloadState = Object.freeze(
-	{unknown: 1, downloading: 2, downloaded: 3, noexist: 4, assignedManually: 5}
-);
+import { DownloadState } from '../src/constants.js';
 
 export class DownloadList {
 
@@ -139,7 +136,7 @@ export class DownloadListItem {
 			res['signed-data'] = this.signedDataKind;
 		}
 		if ((!this.digestFile && !this.digestHex) && !this.signatureFile) {
-			throw new VdError(false, `Entry unfit to be sent to be serialized: ${JSON.stringify(this)}`);
+			throw new VdError(false, `Entry unfit to be sent: ${JSON.stringify(this)}`);
 		}
 		return res;
 	}

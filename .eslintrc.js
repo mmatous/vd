@@ -37,12 +37,13 @@ module.exports = {
 
 	"overrides": [
 		{
-		  "files": ["test/*.js"],
-		  "env": {
-			'es6': true,
-			'jest': true,
-			'node': true
-		  }
+			"parser": "babel-eslint",
+			"files": ["test/*.js"],
+			"env": {
+				'es6': true,
+				'jest': true,
+				'node': true
+			}
 		}
 	  ]
 };

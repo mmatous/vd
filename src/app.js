@@ -26,11 +26,11 @@ export function integrityToNotification(integrity) {
 	if (integrity.Ok) {
 		switch (integrity.Ok) {
 		case 'PASS':
-			return browser.i18n.getMessage('integrityPassed');
+			return '✅ ' + browser.i18n.getMessage('integrityPassed');
 		case 'UNTESTED':
 			return '';
 		default:
-			return browser.i18n.getMessage('integrityFailed');
+			return '❌ ' + browser.i18n.getMessage('integrityFailed');
 		}
 	} else {
 		return browser.i18n.getMessage('integrityError', integrity.Err);
@@ -49,7 +49,7 @@ export function signaturesToNotification(signatures) {
 				result += '\n\t' + browser.i18n.getMessage('signatureOk');
 				break;
 			default:
-				result += '\n\t❌' + signature;
+				result += '\n\t❌ ' + signature;
 			}
 		}
 		return result;

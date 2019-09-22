@@ -58,6 +58,7 @@ describe('browserDownloadFile()', () => {
 
 describe('shouldBeIgnored()', () => {
 	test('returns true any download by vd@vd.io', () => {
+		browser.runtime.id = 'vd@vd.io';
 		expect(vd.shouldBeIgnored({
 			url: 'https://host.io/path/f.sha1',
 			byExtensionId: 'vd@vd.io'
@@ -66,6 +67,7 @@ describe('shouldBeIgnored()', () => {
 	});
 
 	test('returns false for any download not by vd@vd.io', () => {
+		browser.runtime.id = 'vd@vd.io';
 		expect(vd.shouldBeIgnored({ url: 'https://host.io/path/f.file' })).toBe(false);
 	});
 });
@@ -87,27 +89,21 @@ describe('cleanup()', () => {
 	test('removes file (digest), deletes ext. entry (digest, file)', async () => {
 		browser.downloads.removeFile.resolves();
 		browser.downloads.erase.resolves([ 0 ]);
-		const res = vd.registerDownload(helpers.testDownloadItem);
-		res.setDigestFile(helpers.testDigestItem);
-		res.markDownloaded(helpers.testDigestItem.id);
 
-		await vd.cleanup(res.digestId, res.digestState);
+		await vd.cleanup(1, constants.DownloadState.downloaded);
 		expect(browser.downloads.cancel.callCount).toBe(0);
-		expect(browser.downloads.removeFile.callCount).toBe(1);
-		expect(browser.downloads.removeFile.args[0][0]).toBe(helpers.testDigestItem.id);
-		expect(browser.downloads.erase.args[0][0]).toEqual({ id: helpers.testDigestItem.id });
+		expect(browser.downloads.removeFile.args[0][0]).toBe(1);
+		expect(browser.downloads.erase.args[0][0]).toEqual({ id: 1 });
 	});
 
 	test('clears downloads even if file removal fails', async () => {
 		browser.downloads.erase.resolves([ 0 ]);
 		browser.downloads.cancel.rejects('other error');
-		const res = vd.registerDownload(helpers.testDownloadItem);
-		res.setDigestFile(helpers.testDigestItem);
 
-		await vd.cleanup(res.digestId, res.digestState);
+		await vd.cleanup(1, constants.DownloadState.downloading);
 		expect(browser.downloads.removeFile.callCount).toBe(0);
-		expect(browser.downloads.cancel.callCount).toBe(1);
-		expect(browser.downloads.erase.args[0][0]).toEqual({ id: helpers.testDigestItem.id });
+		expect(browser.downloads.cancel.args[0][0]).toBe(1);
+		expect(browser.downloads.erase.args[0][0]).toEqual({ id: 1 });
 	});
 });
 
@@ -116,21 +112,12 @@ describe('handleDownloadCreated()', () => {
 		fetch.resetMocks();
 	});
 
-	test('returns true if digest queued for download', async () => {
-		fetch.mockResponseOnce(helpers.testHtml);
-		get.mockResolvedValue(true);
-		browser.downloads.download.resolves(helpers.testDigestItem.id);
-		browser.downloads.search.resolves([helpers.testDigestItem]);
-
-		const res = await vd.handleDownloadCreated(helpers.testDownloadItem);
-		expect(res).toEqual(true);
-	});
-
 	test('returns false if no page to parse', async () => {
+		const v = new vd.VD();
 		fetch.mockRejectOnce('dns fail');
 		get.mockResolvedValue(true);
 
-		const res = await vd.handleDownloadCreated(helpers.testDownloadItem);
+		const res = await v.handleDownloadCreated(helpers.testDownloadItem);
 		expect(res).toBe(false);
 	});
 });

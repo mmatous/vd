@@ -5,6 +5,7 @@ import {
 } from '../src/vd.js';
 import * as ctxMenus from '../src/contextmenus.js';
 import * as browser from 'sinon-chrome/webextensions';
+import { DownloadList } from '../src/downloadlist.js';
 jest.mock('../src/vd.js');
 
 beforeAll(() => {
@@ -53,7 +54,7 @@ describe('deleteContextMenu()', () => {
 
 describe('handleMenuClicked()', () => {
 	test('throws if provided with invalid ID', async () => {
-		await expect(ctxMenus.handleMenuClicked({menuItemId: '999-0'}))
+		await expect(ctxMenus.handleMenuClicked({menuItemId: '999-0'}, new DownloadList()))
 			.rejects.toThrow('Invalid parent ID: 999');
 	});
 
@@ -61,7 +62,7 @@ describe('handleMenuClicked()', () => {
 		await ctxMenus.handleMenuClicked({
 			menuItemId: `${ctxMenus.MenuType.linkDigest}-0`,
 			linkUrl: 'https://host.io/'
-		});
+		}, new DownloadList());
 		expect(downloadDigestForEntry.mock.calls.length).toBe(1);
 	});
 });

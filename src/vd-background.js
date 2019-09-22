@@ -2,15 +2,15 @@
 
 import * as addonSettings
 	from '../3rdparty/AddonSettings/AddonSettings.js';
-import { handleMenuClicked } from './contextmenus.js';
-import { handleDownloadChanged, handleDownloadCreated, handleInstalled } from './vd.js';
+import { VD } from './vd.js';
 
 addonSettings.loadOptions().then(() => {
 	console.info('AddonSettings module loaded.');
 });
 addonSettings.setCaching(false);
 
-browser.downloads.onChanged.addListener(handleDownloadChanged);
-browser.downloads.onCreated.addListener(handleDownloadCreated);
-browser.menus.onClicked.addListener(handleMenuClicked);
-browser.runtime.onInstalled.addListener(handleInstalled);
+const vd = new VD();
+browser.downloads.onChanged.addListener(delta => vd.handleDownloadChanged(delta));
+browser.downloads.onCreated.addListener(downloadItem => vd.handleDownloadCreated(downloadItem));
+browser.menus.onClicked.addListener(info => vd.handleMenuClicked(info));
+browser.runtime.onInstalled.addListener(() => vd.handleInstalled());

@@ -56,7 +56,7 @@
         "description": "Continued from digestMatching and signaturesMatching"
     },
     "integrityFailed": {
-        "message": "❌ Integrity check failed",
+        "message": "Integrity check failed",
         "description": "Possible part of results notification"
     },
     "integrityError": {
@@ -70,7 +70,7 @@
         }
     },
     "integrityPassed": {
-        "message": "✅ Integrity check passed",
+        "message": "Integrity check passed",
         "description": "Possible part of results notification"
     },
     "latestVersion": {

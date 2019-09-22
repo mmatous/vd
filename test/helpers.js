@@ -1,6 +1,6 @@
 'use strict';
 
-import { DownloadState } from '../src/downloadlist.js';
+import { DownloadState } from '../src/constants';
 
 export const testDownloadItem = {
 	id: 1,
@@ -11,13 +11,15 @@ export const testDownloadItem = {
 export const testDigestItem = {
 	id: 2,
 	url: 'https://host.io/f.ext.sha1',
-	filename: '/a/verifiable.file.sha1'
+	filename: '/a/verifiable.file.sha1',
+	byExtensionId: 'vd@vd.io'
 };
 
 export const testSigItem = {
 	id: 3,
 	url: 'https://host.io/f.ext.asc',
-	filename: '/a/f.ext.asc'
+	filename: '/a/f.ext.asc',
+	byExtensionId: 'vd@vd.io'
 };
 
 export const testDownloadListItem = {

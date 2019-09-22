@@ -19,9 +19,9 @@ export function parseMenuIds(menuId) {
 	return [ parentId, childId ];
 }
 
-export async function handleMenuClicked(info) {
+export async function handleMenuClicked(info, downloadList) {
 	const [parentId, childId] = parseMenuIds(info.menuItemId);
-	const entry = vd.downloadList.getByDownloadId(childId);
+	const entry = downloadList.getByDownloadId(childId);
 	switch (String(parentId)) {
 	case MenuType.selectionDigest:
 		entry.setDigest(info.selectionText);

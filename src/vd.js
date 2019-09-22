@@ -4,26 +4,107 @@ import * as addonSettings
 	from '../3rdparty/AddonSettings/AddonSettings.js';
 import * as constants from './constants.js';
 import * as ctxMenus from './contextmenus.js';
-import {
-	DownloadList,
-	DownloadState
-} from './downloadlist.js';
+import { DownloadList } from './downloadlist.js';
 import * as parsing from './parsing.js';
 import * as utils from './utils.js';
 import * as app from './app.js';
 import VdError from './vd-error.js';
 
-export const downloadList = new DownloadList(constants.REMEMBER_DOWNLOADS, ctxMenus.deleteContextMenu);
+export class VD {
+	constructor() {
+		this.downloadList = new DownloadList(constants.REMEMBER_DOWNLOADS, ctxMenus.deleteContextMenu);
+	}
+
+	async handleDownloadCreated(downloadItem) {
+		if (shouldBeIgnored(downloadItem)) {
+			return;
+		}
+		const entry = this.registerDownload(downloadItem);
+
+		let res = null;
+		try {
+			res = await tryLookups(downloadItem.url, entry);
+			if (res) {
+				return true;
+			}
+		} catch (err) {
+			await handleError(err, downloadItem);
+		}
+
+		const useAutodetect = await addonSettings.get(constants.Settings.useAutodetect);
+		if (!useAutodetect) { return false; }
+		const filename = parsing.getFilename(downloadItem.url);
+		const fileDir = parsing.getDirListingUrl(downloadItem.url);
+		try {
+			res = await tryAutodetect(filename, fileDir, entry);
+			if (res) {
+				return true;
+			}
+		} catch (err) {
+			await handleError(err, downloadItem);
+		}
+
+		console.info(`No verification files detected for ${downloadItem.url}`);
+		return false;
+	}
+
+	async handleDownloadFinished(delta) {
+		const entry = this.downloadList.getByAnyId(delta.id);
+		if (!entry) {
+			return;
+		}
+		entry.markDownloaded(delta.id);
+		await sendReady(entry);
+	}
+
+	async handleDownloadInterrupted(delta) {
+		const entry = this.downloadList.getByAnyId(delta.id);
+		if (!entry) {
+			console.warn(`Unrecorded download (${delta.id}) interrupted`);
+			return;
+		}
+		await cleanup(entry.digestId, entry.digestState);
+		await cleanup(entry.signatureId, entry.signatureState);
+		ctxMenus.deleteContextMenu(entry.id);
+	}
+
+	async handleDownloadChanged(delta) {
+		if (delta.state && delta.state.current === 'complete') {
+			await this.handleDownloadFinished(delta);
+		} else if (delta.state && delta.state.current === 'interrupted') {
+			await this.handleDownloadInterrupted(delta);
+		}
+	}
+
+	handleInstalled() {
+		app.versionRequest().catch(() => {
+			const err = browser.i18n.getMessage('versionRequestError');
+			utils.notifyUser(browser.i18n.getMessage('errorEncountered'), err);
+		});
+	}
+
+	async handleMenuClicked(info) {
+		ctxMenus.handleMenuClicked(info, this.downloadList);
+	}
+
+	registerDownload(downloadItem) {
+		if (this.downloadList.empty()) {
+			ctxMenus.createContextMenuParents();
+		}
+		ctxMenus.createContextMenuChildren(downloadItem.id, downloadItem.filename);
+		return this.downloadList.createEntry(downloadItem);
+	}
+}
 
 export function shouldBeIgnored(downloadItem) {
-	return downloadItem.byExtensionId === 'vd@vd.io';
+	return downloadItem.byExtensionId === browser.runtime.id;
 }
 
 export async function matchHref(fileHref, list) {
 	const pairings = list.split('\n');
 	for (let pairing of pairings) {
-		const p = pairing.split(' || ', 2);
-		const raw = utils.toRaw(p[0]);
+		pairing = pairing.split(' || ', 2);
+		const raw = utils.toRaw(pairing[0]);
 		const re = new RegExp(raw);
 		const matches = re.exec(fileHref);
 		if (matches) {
@@ -31,9 +112,9 @@ export async function matchHref(fileHref, list) {
 			for (let group = 1; group < matches.length; group++) {
 				const match = matches[group];
 				const replaceRe = String.raw`\$\|${group}\|`;
-				p[1] = p[1].replace(new RegExp(replaceRe, 'g'), match);
+				pairing[1] = pairing[1].replace(new RegExp(replaceRe, 'g'), match);
 			}
-			return p[1];
+			return pairing[1];
 		}
 	}
 	return null;
@@ -58,13 +139,6 @@ export async function getDigestUrls(fileHref, urls) {
 	return singleFileSums.length != 0 ? singleFileSums : parsing.filterAgregatedSumsLinks(urls);
 }
 
-export function handleInstalled() {
-	app.versionRequest().catch(() => {
-		const err = browser.i18n.getMessage('versionRequestError');
-		utils.notifyUser(browser.i18n.getMessage('errorEncountered'), err);
-	});
-}
-
 export function selectSignature(signatureUrls) {
 	// there should be at most one anyway
 	// if not one sig file is likely not better than other
@@ -74,14 +148,6 @@ export function selectSignature(signatureUrls) {
 export function selectDigest(digests) {
 	// todo: prioritize
 	return digests[0];
-}
-
-export function registerDownload(downloadItem) {
-	if (downloadList.empty()) {
-		ctxMenus.createContextMenuParents();
-	}
-	ctxMenus.createContextMenuChildren(downloadItem.id, downloadItem.filename);
-	return downloadList.createEntry(downloadItem);
 }
 
 export async function downloadSignatureForEntry(entry, signatureUrl, signedDataKind) {
@@ -147,39 +213,6 @@ async function tryAutodetect(filename, fileDir, entry) {
 	return false;
 }
 
-export async function handleDownloadCreated(downloadItem) {
-	if (shouldBeIgnored(downloadItem)) {
-		return;
-	}
-	const entry = registerDownload(downloadItem);
-
-	let res = null;
-	try {
-		res = await tryLookups(downloadItem.url, entry);
-		if (res) {
-			return true;
-		}
-	} catch (err) {
-		await handleError(err, downloadItem);
-	}
-
-	const useAutodetect = await addonSettings.get(constants.Settings.useAutodetect);
-	if (!useAutodetect) { return false; }
-	const filename = parsing.getFilename(downloadItem.url);
-	const fileDir = parsing.getDirListingUrl(downloadItem.url);
-	try {
-		res = await tryAutodetect(filename, fileDir, entry);
-		if (res) {
-			return true;
-		}
-	} catch (err) {
-		await handleError(err, downloadItem);
-	}
-
-	console.info(`No verification files detected for ${downloadItem.url}`);
-	return false;
-}
-
 export async function browserDownloadFile(url) {
 	try {
 		const downloadId = await browser.downloads.download({
@@ -202,15 +235,6 @@ async function handleError(err, entry) {
 	}
 }
 
-async function handleDownloadFinished(delta) {
-	const entry = downloadList.getByAnyId(delta.id);
-	if (!entry) {
-		return;
-	}
-	entry.markDownloaded(delta.id);
-	await sendReady(entry);
-}
-
 export async function sendReady(entry) {
 	if (!entry.readyForVerification()) {
 		return false;
@@ -226,37 +250,17 @@ export async function sendReady(entry) {
 	return true;
 }
 
-async function handleDownloadInterrupted(delta) {
-	const entry = downloadList.getByAnyId(delta.id);
-	if (!entry) {
-		console.warn(`Unrecorded download (${delta.id}) interrupted`);
-		return;
-	}
-	await cleanup(entry.digestId, entry.digestState);
-	await cleanup(entry.signatureId, entry.signatureState);
-	ctxMenus.deleteContextMenu(entry.id);
-}
-
-export function handleDownloadChanged(delta) {
-	if (delta.state && delta.state.current === 'complete') {
-		handleDownloadFinished(delta);
-	} else if (delta.state && delta.state.current === 'interrupted') {
-		handleDownloadInterrupted(delta);
-	}
-}
-
 export async function cleanup(id, state) {
-	if (state === DownloadState.downloaded) {
+	if (!id) { return; }
+	if (state === constants.DownloadState.downloaded) {
 		browser.downloads.removeFile(id)
 			.catch(error => console.warn(`Unable to remove file: ${error}`));
-	} else if (state === DownloadState.downloading) {
+	} else if (state === constants.DownloadState.downloading) {
 		browser.downloads.cancel(id)
 			.catch(error => console.warn(`Unable to cancel download: ${error}`));
 	}
-	if (id) {
-		browser.downloads.erase({id: id})
-			.catch(error => console.warn(`Unable to remove from downloads: ${error}`));
-	}
+	browser.downloads.erase({id: id})
+		.catch(error => console.warn(`Unable to remove from downloads: ${error}`));
 	// do not delete from downloadList, it will be dropped when capacity overflows
 }
 

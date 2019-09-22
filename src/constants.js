@@ -5,10 +5,6 @@ export const REMEMBER_DOWNLOADS = 10;
 export const FETCH_TIMEOUT_MS = 2000;
 
 export const Settings = Object.freeze({
-	notifyError: 'notify-error',
-	notifyFail: 'notify-fail',
-	notifySuccess: 'notify-success',
-
 	digestRules: 'digest-rules',
 	signatureRules: 'sig-rules',
 
@@ -25,3 +21,7 @@ export const SignedData = Object.freeze({
 	data: 'data',
 	digest: 'digest'
 });
+
+export const DownloadState = Object.freeze(
+	{unknown: 1, downloading: 2, downloaded: 3, noexist: 4, assignedManually: 5}
+);

@@ -2,11 +2,11 @@
 
 import {
 	DownloadList,
-	DownloadListItem,
-	DownloadState
+	DownloadListItem
 } from '../src/downloadlist.js';
 import * as browser from 'sinon-chrome/webextensions';
 import * as helpers from './helpers.js';
+import { DownloadState } from '../src/constants.js';
 
 beforeAll(() => {
 	window.browser = browser;
