@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- Do not remove this test for UTF-8: if “Ω” doesn’t appear as greek uppercase omega letter enclosed in quotation marks, you should use an editor that supports UTF-8, not this one. -->
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>vd-firefox-extension</id>
+    <version>0.5.1</version>
+    <packageSourceUrl>https://github.com/mmatous/vd</packageSourceUrl>
+    <owners>Martin Matous</owners>
+
+    <title>vd</title>
+    <authors>Martin Matous</authors>
+    <projectUrl>https://github.com/mmatous/vd</projectUrl>
+    <copyright>2019 Martin Matous</copyright>
+    <licenseUrl>https://github.com/mmatous/vd/blob/master/LICENSE</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectSourceUrl>https://github.com/mmatous/vd</projectSourceUrl>
+    <bugTrackerUrl>https://github.com/mmatous/vd/issues</bugTrackerUrl>
+    <tags>vd browser extension verify digest hash signature</tags>
+    <summary>Verify downloaded files using published digests and signatures</summary>
+    <description>Verify downloaded files using published digests and signatures</description>
+    <dependencies>
+      <dependency id="vd-verifier" version="0.3.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>

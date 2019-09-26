@@ -8,4 +8,5 @@ yarn-error.log
 .web-extension-id
 README.html
 build
-
+tools/vd.7z
+*.nupkg
