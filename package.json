@@ -17,7 +17,7 @@
 		"babel-preset-env": "^1.7.0",
 		"eslint": "^6.5.1",
 		"jest": "^24.8.0",
-		"jest-fetch-mock": "^2.1.2",
+		"jest-fetch-mock": "^3.0.3",
 		"sinon-chrome": "^3.0.1",
 		"web-ext": "^3.2.0"
 	},
