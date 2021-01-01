@@ -19,7 +19,7 @@
 		"jest": "^24.8.0",
 		"jest-fetch-mock": "^2.1.2",
 		"sinon-chrome": "^3.0.1",
-		"web-ext": "^3.2.0"
+		"web-ext": "^5.4.1"
 	},
 	"eslintIgnore": [
 		"3rdparty"
